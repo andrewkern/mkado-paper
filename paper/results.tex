@@ -16,35 +16,36 @@ Variants were mapped onto the OrthoMaM alignment coordinates
 to produce multi-species FASTA files
 suitable for direct input to \mkado.
 
-Using chimpanzee as the outgroup,
+Using orangutan as the outgroup,
 genome-wide pooled counts were
-Dn\,=\,37,120, Ds\,=\,65,228, Pn\,=\,44,850, and Ps\,=\,47,838.
-The per-gene standard MK test identified 465 genes
-with nominally significant departures from neutrality ($p < 0.05$),
-though none survived Benjamini-Hochberg correction,
-consistent with the limited power of single-gene tests
-at human-chimpanzee divergence levels.
+Dn\,=\,94,578, Ds\,=\,188,325, Pn\,=\,44,850, and Ps\,=\,47,838.
+The per-gene standard MK test identified numerous genes
+with significant departures from neutrality,
+including genes surviving Bonferroni correction
+(\cref{fig:volcano}).
 As expected,
-the majority of testable genes showed NI~$>$~1 (\cref{fig:volcano}),
+the majority of testable genes showed NI~$>$~1,
 reflecting the well-characterized excess
 of slightly deleterious nonsynonymous polymorphism in humans
 \citep{eyre-walker2006}.
 The aggregated asymptotic MK test estimated
-$\hat{\alpha} = 0.075$ (95\% CI: $-1.22$ to $0.11$),
-with the wide confidence interval reflecting uncertainty
-in extrapolating the frequency-dependent $\alpha(x)$ curve
-from the relatively shallow human-chimpanzee divergence.
-
-Switching to orangutan as the outgroup
-substantially improved precision.
-The longer divergence time yielded roughly 2.5-fold more
-fixed differences (Dn\,=\,94,578, Ds\,=\,188,325),
-and the asymptotic estimate tightened to
 $\hat{\alpha} = 0.163$ (95\% CI: 0.075 to 0.253),
 indicating that approximately 16\% of amino acid substitutions
 on the human lineage were driven by positive selection.
 This estimate is consistent with previous analyses
 of human coding sequences \citep{messer2013, eyre-walker2006}.
+
+Using chimpanzee as the outgroup yielded fewer fixed differences
+(Dn\,=\,37,120, Ds\,=\,65,228),
+roughly 2.5-fold less than orangutan,
+and the asymptotic estimate widened to
+$\hat{\alpha} = 0.075$ (95\% CI: $-1.22$ to $0.11$),
+illustrating the greater uncertainty
+from the shallower human-chimpanzee divergence.
+No individual genes survived
+Benjamini-Hochberg correction with this outgroup,
+consistent with the limited power of single-gene tests
+at shorter divergence times.
 
 The entire analysis---standard MK tests,
 asymptotic estimation,
