@@ -1,14 +1,14 @@
 \section{Features and Implementation}
 
 \mkado is implemented in Python
-and provides both a command-line interface built on Typer
-and a Python API for programmatic use.
+and provides both a command-line interface built on
+\texttt{Typer} and a Python API for programmatic use.
 It accepts codon-aligned FASTA files as input,
 requiring no pre-processing or external format conversion.
 Sequences are automatically partitioned into ingroup and outgroup sets
 by name pattern matching,
-supporting both multi-species alignments in a single file
-and separate ingroup/outgroup files.
+supporting both multi-species alignments in a single FASTA file
+and separate files containing ingroup or outgroup sequences.
 Full documentation, including tutorials and API reference,
 is available at \url{https://mkado.readthedocs.io}.
 
@@ -16,10 +16,10 @@ is available at \url{https://mkado.readthedocs.io}.
 \mkado implements four MK-based analyses.
 The \textit{standard} test computes the classical $2 \times 2$ table
 of nonsynonymous and synonymous changes
-in polymorphism and divergence (Dn, Ds, Pn, Ps),
+in polymorphism and divergence ($D_n$, $D_s$, $P_n$, $P_s$),
 with significance assessed by Fisher's exact test
 or the $G$-test.
-Summary statistics include the neutrality index \citep{rand1996},
+Summary statistics include the neutrality index \citep[NI;][]{rand1996},
 $\alpha$ \citep{smith2002},
 and the Direction of Selection statistic
 \citep[DoS;][]{stoletzki2011}.
@@ -45,16 +45,16 @@ respectively.
 Finally, the Tarone-Greenland $\alpha_\text{TG}$ estimator
 \citep{stoletzki2011}
 provides an unbiased multi-gene estimate of $\alpha$
-by weighting each gene inversely by $\text{Ps} + \text{Ds}$,
+by weighting each gene inversely by $P_s + D_s$,
 correcting for sample size heterogeneity across loci.
 
 Users may filter polymorphisms by derived allele frequency,
 either by specifying a minimum frequency threshold
 or by excluding singletons.
-Polymorphism counting follows the DnaSP convention
+Polymorphism counting follows the \texttt{DnaSP} convention
 (ingroup only) by default,
 with an option to pool ingroup and outgroup polymorphisms
-following the libsequence convention.
+following the \texttt{libsequence} convention.
 
 \paragraph{Codon change classification}
 When comparing codons that differ at multiple positions,
@@ -68,7 +68,7 @@ equally across paths,
 following the approach of \citet{nei1986}.
 
 \paragraph{Batch processing and output}
-The \texttt{batch} command processes directories of alignment files
+MKado's \texttt{batch} command processes directories of alignment files
 in parallel using Python's multiprocessing facilities
 with configurable worker counts.
 Benjamini-Hochberg adjusted $p$-values
@@ -77,10 +77,11 @@ Results are available in human-readable, TSV, or JSON formats.
 A companion \texttt{info} command reports alignment diagnostics
 (sequence count, length, and codon structure)
 for input validation.
+
 To evaluate scaling performance,
 we benchmarked \mkado on 12,437 human protein-coding genes
 aligned with chimpanzee and orangutan orthologs
-from OrthoMaM \citep{orthomam2024},
+from \texttt{OrthoMaM} \citep{orthomam2024},
 with polymorphism data from 178 Yoruba individuals
 in the 1000 Genomes Project \citep{1000genomes2015}.
 Processing all genes with 128 worker threads
@@ -100,6 +101,8 @@ with Bonferroni and nominal significance thresholds
 The asymptotic test produces $\alpha(x)$ curves
 showing the fitted model and bootstrap confidence intervals.
 
+% Note: I think the applications only allow for one figure?
+% https://academic.oup.com/bioinformatics/pages/author-guidelines#section-4
 \begin{figure}[!t]
   \centering
   \includegraphics[width=\columnwidth]{figures/mkado_benchmark.pdf}
@@ -111,13 +114,15 @@ showing the fitted model and bootstrap confidence intervals.
   \label{fig:benchmark}
 \end{figure}
 
+% Since the text talks about this and the asymptotic plot, maybe
+% having Fig2 be a A + B panel with both?
 \begin{figure}[!t]
   \centering
   \includegraphics[width=0.85\columnwidth]{figures/mk_volcano_pongo.png}
-  \caption{Volcano plot from standard MK tests on 12,437 genes using human polymorphism data
-    and \textit{Pongo abelii} as the outgroup for divergence.
-    Red points are significant after Bonferroni correction;
-    orange points are nominally significant ($p < 0.05$);
+  \caption{Volcano plot from standard MK tests on 12,437 genes using human 
+    polymorphism data, using \textit{Pongo abelii} as the outgroup for divergence.
+    Red points are significant after Bonferroni correction, while
+    orange points are nominally significant ($p < 0.05$). The
     dashed lines indicate Bonferroni and nominal thresholds.
     The leftward shift of the cloud (NI $> 1$) reflects the
     well-known excess of weakly deleterious nonsynonymous polymorphism

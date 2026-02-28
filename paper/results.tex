@@ -1,29 +1,34 @@
 \section{Application}
 
-To demonstrate \mkado at genome scale,
+To demonstrate \mkado at genome scales,
 we assembled a dataset of 12,437 human protein-coding genes
 with both polymorphism and divergence data.
 Codon-aligned orthologous sequences
 for human (\textit{Homo sapiens}),
 chimpanzee (\textit{Pan troglodytes}),
 and orangutan (\textit{Pongo abelii})
-were obtained from OrthoMaM v12 \citep{orthomam2024}.
+were obtained from \texttt{OrthoMaM} v12 \citep{orthomam2024}.
 Human intraspecific polymorphism was drawn from 178 Yoruba (YRI)
 individuals in the 1000 Genomes Project NYGC high-coverage dataset
 \citep{1000genomes2015},
 yielding 356 phased haplotypes per gene.
-Variants were mapped onto the OrthoMaM alignment coordinates
+% Not for the paper, but it might be good to provide an example
+% of how to do this in the docs, particularly if user are working
+% on non-model systems without clean databases. I wrangled something 
+% the barnacles, but we can clean it up and posted in the docs or
+% even as a supplementary script in the main repo.
+Variants were mapped onto the \texttt{OrthoMaM} alignment coordinates
 to produce multi-species FASTA files
 suitable for direct input to \mkado.
 
 Using orangutan as the outgroup,
 genome-wide pooled counts were
-Dn\,=\,94,578, Ds\,=\,188,325, Pn\,=\,44,850, and Ps\,=\,47,838.
+$D_n$\,=\,94,578, $D_s$\,=\,188,325, $P_n$\,=\,44,850,
+and $P_s$\,=\,47,838.
 The per-gene standard MK test identified numerous genes
 with significant departures from neutrality,
-including genes surviving Bonferroni correction
-(\cref{fig:volcano}).
-As expected,
+including genes significant after Bonferroni correction
+(\cref{fig:volcano}). As expected,
 the majority of testable genes showed NI~$>$~1,
 reflecting the well-characterized excess
 of slightly deleterious nonsynonymous polymorphism in humans
@@ -32,17 +37,21 @@ The aggregated asymptotic MK test estimated
 $\hat{\alpha} = 0.163$ (95\% CI: 0.075 to 0.253),
 indicating that approximately 16\% of amino acid substitutions
 on the human lineage were driven by positive selection.
+% Maybe we could also mention the results from the alpha_TG
+% estimate here as well. Mostly trying to highlight that we
+% can also very easily do it from the same data.
+% "The genome-wide weighted estimate indicated X% (CI X-X) of
+% substitutions driven by selection".
 This estimate is consistent with previous analyses
 of human coding sequences \citep{messer2013, eyre-walker2006}.
 
 Using chimpanzee as the outgroup yielded fewer fixed differences
-(Dn\,=\,37,120, Ds\,=\,65,228),
-roughly 2.5-fold less than orangutan,
-and the asymptotic estimate widened to
-$\hat{\alpha} = 0.075$ (95\% CI: $-1.22$ to $0.11$; 
-\cref{fig:asymptotic}),
+($D_n$\,=\,37,120, $D_s$\,=\,65,228), roughly 2.5-fold less than
+orangutan. The asymptotic estimate widened to
+$\hat{\alpha} = 0.075$ (95\% CI: $-1.22$ to $0.11$),
 illustrating the greater uncertainty
 from the shallower human-chimpanzee divergence.
+% If we add alpha_TG before we could do it here as well.
 No individual genes survived
 Benjamini-Hochberg correction with this outgroup,
 consistent with the limited power of single-gene tests

@@ -6,19 +6,23 @@ at the molecular level.
 By comparing the ratio of nonsynonymous to synonymous changes
 within species (polymorphism) to that between species (divergence),
 the MK test provides a direct test of the neutral theory prediction
-that these ratios should be equal.
-Departures from this expectation,
+that these ratios should be equal. Departures from this expectation,
 often quantified by the neutrality index \citep[NI;][]{rand1996}
 or the fraction of adaptive substitutions $\alpha$ \citep{smith2002},
-have revealed pervasive positive selection across a wide range of taxa.
+have revealed pervasive positive selection across a wide range of taxa
+\citep[e.g.,][]{lozada-chavez2025, brown2024, liti2009, lam2010,
+downing2009, hughes2008, li2008}.
+% I put some examples here. Probably far more than we need, but rather have
+% some we can pick and chose as needed.
 
 A key challenge for the standard MK test is that
 slightly deleterious nonsynonymous mutations,
 which contribute to polymorphism but rarely fix,
-inflate Pn relative to Dn and bias $\alpha$ downward
-\citep{charlesworth1993, eyre-walker2006}.
-The asymptotic MK test addresses this by estimating $\alpha$
-as a function of derived allele frequency
+inflate the number of nonsynonymous polymorphism ($P_n$) relative to
+nonsynonymous substitutions ($D_n$) and bias $\alpha$ downward
+\citep{charlesworth1993, eyre-walker2006}. An extension of the
+standard MK test, the asymptotic MK test addresses this limitation 
+by estimating $\alpha$ as a function of derived allele frequency
 and extrapolating to fixation,
 effectively removing the contribution of weakly deleterious variants
 \citep{messer2013, haller2017}.
@@ -29,16 +33,22 @@ allowing lineage-specific inference of selection \citep{smith2002}.
 
 Despite the centrality of MK-based methods to molecular evolution,
 existing software implementations remain fragmented.
-DnaSP \citep{librado2009} provides the standard test
+% I have been formatting the names of software using monospaced font.
+% I like it aesthetically, but disregard as needed.
+\texttt{DnaSP} \citep{librado2009} provides the standard test
 through a Windows-only graphical interface.
-The iMKT R package and web server \citep{murga-moreno2019}
+The \texttt{iMKT} R package and web server \citep{murga-moreno2019}
 implements several extensions
 but requires pre-computed summary statistics
 and is tightly coupled to specific databases.
-The asymptoticMK web tool, which is now 
-defunct and available as R code \citep{haller2017},
-implemented the asymptotic test without 
-accepting raw sequence data.
+The \texttt{asymptoticMK} web tool \citep{haller2017}
+implements the asymptotic test
+but does not accept raw sequence data.
+The \texttt{degenotate} software, part of the \texttt{snpArcher}
+pipeline \cite{mirchandani2023}, can calculate both standard and 
+imputed versions of the test; however it does so only using
+genetic variants in VCF format and is thus dependent on
+(and susceptible to) the liftover of outgroup sequences.
 No existing tool provides a unified command-line interface
 that takes aligned coding sequences as input
 and supports the standard, polarized, and asymptotic MK tests
@@ -47,7 +57,8 @@ together with batch processing across thousands of genes
 
 Here we present \mkado, a Python package that fills this gap.
 \mkado takes codon-aligned FASTA files as input
-and implements the standard, polarized, and asymptotic MK tests
+and implements the standard, polarized, and asymptotic MK tests,
+as well as related statistics,
 with a consistent command-line interface.
 It supports parallel batch processing of genome-scale datasets,
 automatic multiple testing correction,
@@ -63,24 +74,28 @@ with modern Python-based bioinformatics workflows.
     built-in support; dashes indicate the feature is absent.}
   \label{tab:comparison}
   \footnotesize
-  \begin{tabular}{@{}lcccc@{}}
+  \begin{tabular}{@{}lccccc@{}}
     \toprule
-    Feature & DnaSP & iMKT & \begin{tabular}[c]{@{}c@{}}asymptotic\\[-3pt]MK\end{tabular} & \mkado \\
+    Feature & \texttt{DnaSP} & \texttt{iMKT} & \begin{tabular}[c]{@{}c@{}}asymptotic\\[-3pt]MK\end{tabular} &
+      \texttt{degenotate} & \mkado \\
     \midrule
-    Sequence input        & \checkmark & web only   & ---          & \checkmark \\
-    Standard MK           & \checkmark & \checkmark & ---          & \checkmark \\
-    Polarized MK          & ---        & ---        & ---          & \checkmark \\
-    Asymptotic MK         & ---        & \checkmark & \checkmark   & \checkmark \\
-    $\alpha_\text{TG}$    & ---        & ---        & ---          & \checkmark \\
-    Frequency filtering   & ---        & \checkmark & \checkmark   & \checkmark \\
-    CLI                   & ---        & ---        & ---          & \checkmark \\
-    Python API            & ---        & ---        & ---          & \checkmark \\
-    Batch processing      & ---        & ---        & ---          & \checkmark \\
-    Parallel execution    & ---        & ---        & ---          & \checkmark \\
-    Multiple testing corr.& ---        & ---        & ---          & \checkmark \\
-    Visualization         & limited    & \checkmark & \checkmark   & \checkmark \\
-    Open source           & ---        & \checkmark & \checkmark   & \checkmark \\
-    Cross-platform        & ---        & \checkmark & \checkmark   & \checkmark \\
+    Sequence input        & \checkmark & web only   & ---          & ---        & \checkmark \\
+    Standard MK           & \checkmark & \checkmark & ---          & \checkmark & \checkmark \\
+    Polarized MK          & ---        & ---        & ---          & ---        & \checkmark \\
+    Asymptotic MK         & ---        & \checkmark & \checkmark   & ---        & \checkmark \\
+    $\alpha_\text{TG}$    & ---        & ---        & ---          & ---        & \checkmark \\
+    Frequency filtering   & ---        & \checkmark & \checkmark   & \checkmark & \checkmark \\
+    CLI                   & ---        & ---        & ---          & \checkmark & \checkmark \\
+    Python API            & ---        & ---        & ---          & ---        & \checkmark \\
+    Batch processing      & ---        & ---        & ---          & ---        & \checkmark \\
+    Parallel execution    & ---        & ---        & ---          & ---        & \checkmark \\
+    Multiple testing corr.& ---        & ---        & ---          & ---        & \checkmark \\
+    Visualization         & limited    & \checkmark & \checkmark   & ---        & \checkmark \\
+    Open source           & ---        & \checkmark & \checkmark   & \checkmark & \checkmark \\
+    Cross-platform        & ---        & \checkmark & \checkmark   & \checkmark & \checkmark \\
     \bottomrule
   \end{tabular}
 \end{table}
+% I added degenotate to the table above. To be sure, someone should do another pass
+% at their docs to make sure we are not missing any of the options.
+% I know Scott has used it in the pass, so we could check with him as wekk,.
