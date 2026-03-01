@@ -28,37 +28,61 @@ and $P_s$\,=\,47,838.
 The per-gene standard MK test identified numerous genes
 with significant departures from neutrality,
 including genes significant after Bonferroni correction
-(\cref{fig:volcano}). As expected,
+(\cref{fig:volcano}A). As expected,
 the majority of testable genes showed NI~$>$~1,
 reflecting the well-characterized excess
 of slightly deleterious nonsynonymous polymorphism in humans
 \citep{li2008}.
-The aggregated asymptotic MK test estimated
-$\hat{\alpha} = 0.163$ (95\% CI: 0.075 to 0.253),
-indicating that approximately 16\% of amino acid substitutions
-on the human lineage were driven by positive selection.
-% Maybe we could also mention the results from the alpha_TG
-% estimate here as well. Mostly trying to highlight that we
-% can also very easily do it from the same data.
-% "The genome-wide weighted estimate indicated X% (CI X-X) of
-% substitutions driven by selection".
-This estimate is consistent with previous analyses
-of human coding sequences \citep{messer2013}.
-
 Using chimpanzee as the outgroup yielded fewer fixed differences
 ($D_n$\,=\,37,120, $D_s$\,=\,65,228), roughly 2.5-fold less than
-orangutan. The asymptotic estimate widened to
-$\hat{\alpha} = 0.075$ (95\% CI: $-1.22$ to $0.11$),
-illustrating the greater uncertainty
-from the shallower human-chimpanzee divergence.
-% If we add alpha_TG before we could do it here as well.
-No individual genes survived
-Bonferroni correction with this outgroup,
+orangutan (\cref{fig:chimp_mk}A),
+and no individual genes survived Bonferroni correction,
 consistent with the limited power of single-gene tests
 at shorter divergence times.
 
+The Tarone-Greenland weighted estimate \citep{stoletzki2011}
+across all genes was strongly negative for both outgroups:
+$\hat{\alpha}_\text{TG} = -0.853$
+(95\% CI: $-0.888$ to $-0.812$)
+for orangutan
+and $\hat{\alpha}_\text{TG} = -0.651$
+(95\% CI: $-0.682$ to $-0.607$)
+for chimpanzee,
+with corresponding $\text{NI}_\text{TG}$ values of 1.853 and 1.651.
+These negative values confirm the pervasive excess
+of weakly deleterious nonsynonymous polymorphism in humans.
+Excluding singletons shifted both estimates upward
+($\hat{\alpha}_\text{TG} = -0.794$ for orangutan;
+$-0.606$ for chimpanzee),
+as expected given the enrichment of slightly deleterious
+variants at low frequency.
+Applying a 15\% derived allele frequency cutoff
+\citep{fay2001}
+brought both estimates close to zero
+($\hat{\alpha}_\text{TG} = -0.091$ for orangutan;
+$-0.041$ for chimpanzee),
+removing the bulk of low-frequency deleterious variants
+but still failing to recover a signal of positive selection.
+
+In contrast, the aggregated asymptotic MK test,
+which models the frequency dependence of $\alpha$
+and extrapolates to fixation \citep{messer2013},
+successfully recovered a positive signal of adaptive evolution,
+estimating $\hat{\alpha} = 0.163$
+(95\% CI: 0.075 to 0.253; \cref{fig:volcano}B)
+using orangutan as the outgroup,
+indicating that approximately 16\% of amino acid substitutions
+on the human lineage were driven by positive selection.
+With chimpanzee as the outgroup the estimate widened to
+$\hat{\alpha} = 0.075$ (95\% CI: $-1.22$ to $0.11$;
+\cref{fig:chimp_mk}B),
+illustrating the greater uncertainty
+from the shallower divergence.
+These results are consistent with previous analyses
+of human coding sequences \citep{messer2013}.
+
 The entire analysis---standard MK tests,
-asymptotic estimation,
+Tarone-Greenland estimation, asymptotic estimation,
 and volcano plot generation for all 12,437 genes---completed
 in under one minute on a multi-core workstation
 using \mkado's parallel batch mode.

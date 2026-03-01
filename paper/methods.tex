@@ -53,8 +53,7 @@ either by specifying a minimum frequency threshold
 or by excluding singletons.
 Polymorphism counting follows the \texttt{DnaSP} convention
 (ingroup only) by default,
-with an option to pool ingroup and outgroup polymorphisms
-following the \texttt{libsequence} convention.
+with an option to pool ingroup and outgroup polymorphisms if desired.
 
 \paragraph{Codon change classification}
 When comparing codons that differ at multiple positions,
@@ -101,30 +100,24 @@ with Bonferroni and nominal significance thresholds
 The asymptotic test produces $\alpha(x)$ curves
 showing the fitted model and bootstrap confidence intervals.
 
-% Since the text talks about this and the asymptotic plot, maybe
-% having Fig2 be a A + B panel with both?
-\begin{figure}[!t]
+\begin{figure*}[!t]
   \centering
-  \includegraphics[width=0.85\columnwidth]{figures/mk_volcano_pongo.png}
-  \caption{Volcano plot from standard MK tests on 12,437 genes using human 
-    polymorphism data, using \textit{Pongo abelii} as the outgroup for divergence.
+  \includegraphics[width=0.48\textwidth]{figures/mk_volcano_pongo.png}\hfill
+  \includegraphics[width=0.48\textwidth]{figures/asymp-OH.png}
+  \caption{MK test results for 12,437 human protein-coding genes using
+    \textit{Pongo abelii} as the outgroup for divergence.
+    (\textbf{A})~Volcano plot from per-gene standard MK tests.
     Red points are significant after Bonferroni correction, while
-    orange points are nominally significant ($p < 0.05$). The
-    dashed lines indicate Bonferroni and nominal thresholds.
+    orange points are nominally significant ($p < 0.05$).
+    The dashed lines indicate Bonferroni and nominal thresholds.
     The leftward shift of the cloud (NI $> 1$) reflects the
     well-known excess of weakly deleterious nonsynonymous polymorphism
-    in humans.}
+    in humans.
+    (\textbf{B})~Asymptotic $\alpha$ curve for pooled data.
+    Points represent the observed $\alpha$ at each derived allele
+    frequency cutoff; the solid line represents the fitted curve,
+    in this case the linear model selected by AIC. The shaded area
+    indicates the 95\% confidence interval around the fitted
+    asymptotic $\alpha$ value.}
   \label{fig:volcano}
-\end{figure}
-
-\begin{figure}[!t]
-  \centering
-  \includegraphics[width=0.85\columnwidth]{figures/asymp-CH.png}
-  \caption{Asymptotic $\alpha$ curve for pooled data using 
-    human polymorphism data with \textit{Pan troglodytes} as the outgroup
-    for divergence. Points represent the observed $\alpha$ at each 
-    frequency cutoff; the solid line represents the fitted asymptotic $\alpha$ value.
-    The negative values of $\alpha$ at low frequency cutoffs reflects the
-    excess of slightly deleterious polymorphism in humans.}
-  \label{fig:asymptotic}
-\end{figure}
+\end{figure*}

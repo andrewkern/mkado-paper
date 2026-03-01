@@ -11,3 +11,21 @@
     (speedup divided by thread count).}
   \label{fig:benchmark}
 \end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.48\columnwidth]{figures/mk_volcano_pan.png}\hfill
+  \includegraphics[width=0.48\columnwidth]{figures/asymp-CH.png}
+  \caption{MK test results for 12,437 human protein-coding genes using
+    \textit{Pan troglodytes} as the outgroup for divergence.
+    (\textbf{A})~Volcano plot from per-gene standard MK tests.
+    Red points are significant after Bonferroni correction, while
+    orange points are nominally significant ($p < 0.05$).
+    The dashed lines indicate Bonferroni and nominal thresholds.
+    (\textbf{B})~Asymptotic $\alpha$ curve for pooled data.
+    Points represent the observed $\alpha$ at each derived allele
+    frequency cutoff; the solid line represents the fitted curve.
+    The shaded area indicates the 95\% confidence interval around
+    the fitted asymptotic $\alpha$ value.}
+  \label{fig:chimp_mk}
+\end{figure}
