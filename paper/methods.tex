@@ -28,7 +28,7 @@ to infer the ancestral state at each fixed difference,
 assigning divergence to the ingroup or outgroup lineage
 for lineage-specific inference.
 The \textit{asymptotic} test bins polymorphisms
-by derived allele frequency (DAF),
+by derived allele frequency, % removed the acronym because we only use it once in the text.
 computes $\alpha$ within each bin,
 and fits an exponential model $\alpha(x) = a + b e^{-cx}$
 to extrapolate the asymptotic $\alpha$ at $x = 1$,
@@ -46,8 +46,8 @@ The \textit{imputed} test corrects for weakly deleterious mutations
 by estimating their contribution from the ratio
 of low- to high-frequency synonymous polymorphisms
 \citep{murga-moreno2022}.
-Polymorphisms are split at a derived allele frequency cutoff
-(default 15\%),
+Polymorphisms are split at a derived allele frequency % Alternatively, change to DAF here
+cutoff (default 15\%),
 and the expected number of weakly deleterious nonsynonymous
 polymorphisms below the cutoff is imputed as
 $P_{wd} = P_{n,\text{low}} - P_{n,\text{high}} \times
@@ -122,14 +122,15 @@ showing the fitted model and bootstrap confidence intervals.
   \includegraphics[width=0.48\textwidth]{figures/asymp-OH.png}
   \caption{MK test results for 12,437 human protein-coding genes using
     \textit{Pongo abelii} as the outgroup for divergence.
-    (\textbf{A})~Volcano plot from per-gene standard MK tests.
+    % We don't have A or B in the figure above, so changing to left and right
+    Left: Volcano plot from per-gene standard MK tests.
     Red points are significant after Bonferroni correction, while
     orange points are nominally significant ($p < 0.05$).
     The dashed lines indicate Bonferroni and nominal thresholds.
     The leftward shift of the cloud (NI $> 1$) reflects the
     well-known excess of weakly deleterious nonsynonymous polymorphism
     in humans.
-    (\textbf{B})~Asymptotic $\alpha$ curve for pooled data.
+    Right: Asymptotic $\alpha$ curve for pooled data.
     Points represent the observed $\alpha$ at each derived allele
     frequency cutoff; the solid line represents the fitted curve,
     in this case the linear model selected by AIC. The shaded area
