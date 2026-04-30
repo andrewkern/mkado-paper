@@ -8,7 +8,12 @@
     protein-coding genes. (\textbf{A})~Wall-clock time versus worker threads.
     (\textbf{B})~Speedup relative to single-threaded execution, with ideal
     linear scaling shown as a dashed line. (\textbf{C})~Parallel efficiency
-    (speedup divided by thread count).}
+    (speedup divided by thread count). Real scaling diverges from the ideal
+    linear curve because the per-gene work (parsing, codon classification,
+    and the per-gene MK test) takes on the order of milliseconds, while the
+    spawn cost of a Python \texttt{multiprocessing} worker is fixed; the
+    spawn overhead therefore grows non-negligible relative to per-task work
+    at high worker counts.}
   \label{fig:benchmark}
 \end{figure}
 
@@ -30,4 +35,32 @@
     The shaded area indicates the 95\% confidence interval around
     the fitted asymptotic $\alpha$ value.}
   \label{fig:chimp_mk}
+\end{figure}
+
+\revpoint{1}{5}%
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/aggregated_asymptotic_runtime.png}
+  \caption{Aggregated-asymptotic runtime benchmark. The
+    panels show wall time (left, log scale) and asymptotic $\alpha$
+    (right) across the four-cell grid of sfs-mode $\in$
+    \{at, above\} $\times$ ci-method $\in$ \{monte-carlo,
+    bootstrap\}, over 100 replicates of 1{,}000 randomly sampled
+    human protein-coding genes per replicate. The leftmost panel,
+    when present, additionally reports end-to-end pipeline wall
+    time at worker counts of 8, 16, 32, and 64. Per-replicate wall
+    time covers the aggregated asymptotic-MK call only
+    (aggregation, curve fit, and CI computation); per-gene
+    polymorphism extraction (parsing, codon-aligning ingroup vs.\
+    outgroup, classifying nonsynonymous and synonymous polymorphism,
+    and Nei--Gojobori site counting) runs once across all genes,
+    is cached to disk, and is amortized across replicates---its
+    one-time wall time is reported in the figure title. Method
+    rather than sample variance dominates: the same per-replicate
+    seeds are reused across the four cells of the grid, so each
+    cell sees the same 100 gene subsets. The benchmark is
+    reproducible via the
+    aggregated-asymptotic-runtime script in the
+    \texttt{examples/benchmarks/} directory of the repository.}
+  \label{fig:aggregated_runtime}
 \end{figure}
