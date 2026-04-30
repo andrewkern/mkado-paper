@@ -624,60 +624,31 @@ substring match.
 \end{point}
 
 \reply{
-We agree the \texttt{--aggregate} flag's role was not adequately
-introduced in either the manuscript or the documentation. A new
-``Per-gene vs Aggregated Modes'' subsection has been added to the
-Batch Processing Workflow page of the documentation, explicitly
-contrasting the two modes, naming the tests for which each is the
-default, and explaining \emph{why} aggregation is the default for
-asymptotic MK (per-gene SFS data are too sparse to fit reliably).
-The standard MK test is also explicitly noted as naturally per-gene,
-with \texttt{--aggregate} ignored in that case.
+For the \texttt{--aggregate} clarity issue, we have added a new
+``Per-gene vs Aggregated Modes'' subsection to the Batch Processing
+Workflow documentation that contrasts the two modes, names the
+default for each test, and explains \emph{why} aggregation is the
+default for asymptotic MK (per-gene SFS data are too sparse to fit).
 
-Regarding the two additional sample-selection mechanisms (index
-ranges and regular expressions): after considering both we have
-decided to decline both, and we offer our reasoning here in case it
-is useful in evaluating the response.
-
-\textit{Index ranges.} The reviewer's underlying use case---samples
-grouped by population in the input file---is a real one, but in the
-file formats \mkado{} accepts (multi-record FASTA and multi-sample
-VCF) sample names almost always carry the relevant grouping
-information directly: 1000 Genomes haplotypes are tagged with
-population codes, OrthoMaM ortholog FASTAs are tagged with species,
-and ad-hoc multi-sample alignments are typically prefixed by user
-convention. Substring matching on those names already covers this
-case and has the additional safety property of being
-\emph{order-invariant}: if a user re-headers a VCF, round-trips
-through BCF, or shuffles FASTA records, a name-based filter still
-selects the same haplotypes; an index-range filter silently selects
-different ones. We consider this order-stability worth preserving.
-
-There is also an interface cost. Adding index ranges would mean
-\texttt{-i} and \texttt{-o} carry two different semantics
-(substring \emph{or} range), which every code path that consumes
-those flags---the single-file CLI, batch workers, the VCF
-subcommand, and the Python API---would have to parse and dispatch
-on. The format itself invites further requests
-(comma-separated unions, open-ended ranges, negative indices,
-slice syntax) that quickly accrete into a sublanguage we would
-have to maintain. We would rather keep the selector surface
-minimal.
-
-\textit{Regular expressions.} Regex selectors are likewise tempting
-but tend to produce unanchored-pattern footguns that we have seen
-bite users in other tools (\texttt{ABC} unintentionally matches
-\texttt{ABCD}; \texttt{HG.} matches the dot literal but also any
-character, depending on whether the user remembers the escape). The
-class of failures is silent---wrong samples are selected without an
-error---which is the worst kind of bug for a tool whose results
-inform downstream selection inferences. Substring matching has a
-narrower failure mode (a clean ``no matches found''), and the
-remaining gap is small enough not to justify the risk.
-
-If a real-world case emerges where neither substring nor an explicit
-samples-list file (which we would consider as an alternative)
-suffices, we will reopen this decision in a future release.
+For the two new selector forms, we have decided to decline both.
+Sample names in the formats \mkado{} accepts (multi-sample VCF,
+multi-record FASTA) typically carry the relevant grouping---1000
+Genomes population codes, OrthoMaM species tags, ad-hoc user
+prefixes---so substring matching already covers the
+population-grouped case. Substring is also \emph{order-invariant}: a
+VCF re-header or FASTA shuffle leaves a name-based filter
+unchanged, while an index-range filter silently selects different
+samples. Adding ranges would also give \texttt{-i} and \texttt{-o}
+two semantics that every consumer (CLI, batch workers, VCF
+subcommand, Python API) would have to dispatch on, and we expect
+the format would accrete (unions, open-ended ranges, slice syntax)
+into a small sublanguage. Regex matchers compound this with their
+classic unanchored-pattern footgun---silently selecting the wrong
+samples is the worst class of failure for a selection-inference
+tool. Substring's clean ``no matches found'' is a narrower
+failure mode, and the remaining gap is small enough not to
+justify the risk. If a case arises where neither substring nor an
+explicit samples-list file suffices, we will revisit.
 }
 
 %---------- R2.10 ----------
