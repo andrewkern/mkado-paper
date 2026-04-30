@@ -3,10 +3,44 @@
 **Journal:** Bioinformatics
 **Title:** MKado: a toolkit for McDonald-Kreitman tests of natural selection
 
-> Note: the editor's formal decision letter is not yet pasted into this
-> file; only the raw reviewer comments (preserved verbatim from
-> `paper_review.txt` for reference) are included below. Replace this
-> placeholder with the actual decision letter when received.
+April 21, 2026
+RE: G3-2026-406681
+
+
+Dear Dr. Kern:
+
+We are pleased to conditionally accept your manuscript titled "MKado: a toolkit for McDonald-Kreitman tests of natural selection" for publication in G3: Genes|Genomes|Genetics. We expect all remaining minor revisions can be completed within 30 days.
+
+The reviewers were both very positive about the value of MKado. They highlight several areas where the manuscript should be modified for clarity, and we ask you to address those in your revision. They also provide detailed and constructive feedback about ways to extend and improve the software and documentation.
+
+Follow this link to submit the revised manuscript: https://g3.msubmit.net/cgi-bin/main.plex?el=A6NQ7HwU2A6DLH7I7A9ftdJwe5Upqqpgguh7OEewgywZ
+
+Prior to uploading your revised manuscript please format it according to G3 style and ensure you have all required elements. Author Guidelines are at https://academic.oup.com/g3journal/pages/author-guidelines#section-11. These guidelines have been updated with new requirements and your careful attention is required to avoid delays.
+
+In your final submission, please include:
+1. A clean version of your manuscript, formatted for G3
+2. A highlighted or tracked version of your manuscript that links your response to reviewers via the current text
+3. A separate document with a response to each of the editor's/reviewers' comments
+
+Thank you for submitting your research to G3. As a fully open access journal of the Genetics Society of America (GSA), our mission is to publish peer-reviewed and peer-edited reproducible science with high-quality data. Thank you for your contribution.
+
+Sincerely,
+
+Matthew Rockman
+Associate Editor
+G3: Genes
+Genomes
+Genetics
+
+
+
+Rob Kulathinal
+Senior Editor
+G3: Genes
+Genomes
+Genetics
+
+
 
 ---
 
