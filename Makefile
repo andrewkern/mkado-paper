@@ -96,7 +96,10 @@ $(REVISION_PDF) $(RESPONSES_PDF): $(REVISION_DEPS)
 # input the same paper/*.tex; we use --flatten to inline them, and we
 # fetch the pre-revision paper/*.tex from git (the branch named in
 # DIFF_BASE_REF, default `master`).
-DIFF_BASE_REF ?= master
+# Pre-revision submission state. `master` would be wrong here -- once the
+# revision merges into master, master IS the revised state, and diffing
+# against itself produces no diff. We tag the pre-revision commit instead.
+DIFF_BASE_REF ?= submission-v1
 DIFF_TMP_DIR  := .diff-orig
 
 diff: $(DIFF_PDF)
