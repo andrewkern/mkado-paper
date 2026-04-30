@@ -634,18 +634,50 @@ asymptotic MK (per-gene SFS data are too sparse to fit reliably).
 The standard MK test is also explicitly noted as naturally per-gene,
 with \texttt{--aggregate} ignored in that case.
 
-Regarding the additional sample-selection requests: we agree that
-range-based selectors are useful for population-ordered samples and
-plan to add comma-separated index-range matchers (e.g.\
-\texttt{-i 0-25}) alongside the existing substring match in this
-revision cycle.
+Regarding the two additional sample-selection mechanisms (index
+ranges and regular expressions): after considering both we have
+decided to decline both, and we offer our reasoning here in case it
+is useful in evaluating the response.
 
-For regular-expression matchers we have decided to decline. Substring
-matching plus the planned index-range form covers the common cases we
-have seen, while regular expressions tend to introduce subtle matching
-errors (e.g.\ unanchored patterns matching unintended samples) that
-are harder for users to diagnose. If demand arises after release we
-will revisit this decision.
+\textit{Index ranges.} The reviewer's underlying use case---samples
+grouped by population in the input file---is a real one, but in the
+file formats \mkado{} accepts (multi-record FASTA and multi-sample
+VCF) sample names almost always carry the relevant grouping
+information directly: 1000 Genomes haplotypes are tagged with
+population codes, OrthoMaM ortholog FASTAs are tagged with species,
+and ad-hoc multi-sample alignments are typically prefixed by user
+convention. Substring matching on those names already covers this
+case and has the additional safety property of being
+\emph{order-invariant}: if a user re-headers a VCF, round-trips
+through BCF, or shuffles FASTA records, a name-based filter still
+selects the same haplotypes; an index-range filter silently selects
+different ones. We consider this order-stability worth preserving.
+
+There is also an interface cost. Adding index ranges would mean
+\texttt{-i} and \texttt{-o} carry two different semantics
+(substring \emph{or} range), which every code path that consumes
+those flags---the single-file CLI, batch workers, the VCF
+subcommand, and the Python API---would have to parse and dispatch
+on. The format itself invites further requests
+(comma-separated unions, open-ended ranges, negative indices,
+slice syntax) that quickly accrete into a sublanguage we would
+have to maintain. We would rather keep the selector surface
+minimal.
+
+\textit{Regular expressions.} Regex selectors are likewise tempting
+but tend to produce unanchored-pattern footguns that we have seen
+bite users in other tools (\texttt{ABC} unintentionally matches
+\texttt{ABCD}; \texttt{HG.} matches the dot literal but also any
+character, depending on whether the user remembers the escape). The
+class of failures is silent---wrong samples are selected without an
+error---which is the worst kind of bug for a tool whose results
+inform downstream selection inferences. Substring matching has a
+narrower failure mode (a clean ``no matches found''), and the
+remaining gap is small enough not to justify the risk.
+
+If a real-world case emerges where neither substring nor an explicit
+samples-list file (which we would consider as an alternative)
+suffices, we will reopen this decision in a future release.
 }
 
 %---------- R2.10 ----------
