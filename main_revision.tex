@@ -18,10 +18,12 @@
 \usepackage{xcolor}
 \usepackage{lineno}
 
-\input{paper/header}
-
 % Review response macros and \revpoint / \revref / \llabel commands.
+% Loaded before paper/header so the real definitions win over the
+% \providecommand no-ops in the shared header.
 \input{review-response-commands}
+
+\input{paper/header}
 
 \pagestyle{fancy}
 \setlength{\headheight}{14.5pt}

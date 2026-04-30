@@ -1,14 +1,24 @@
 # Makefile for mkado-paper
 #
 # Build targets:
-#   make                  - build main.pdf (bioinfo.cls submission build)
-#   make preprint         - build preprint.pdf (single-column article class)
-#   make revision         - build main_revision.pdf + review-responses.pdf
-#                           (line-numbered article-class build with the
-#                           response document split into a separate PDF)
-#   make diff             - build review-diff.pdf (latexdiff between
-#                           main.tex and main_revision.tex)
-#   make all-revision     - revision + diff
+#   make                  - build preprint.pdf (revised manuscript, single-
+#                           column article class -- the canonical readable
+#                           build for round-1 G3 resubmission)
+#   make preprint         - same as `make`
+#   make revision         - build main_revision_only.pdf + review-responses.pdf
+#                           (line-numbered manuscript with the point-by-point
+#                           response document split into a separate PDF; this
+#                           is the bundle to submit to the editor)
+#   make diff             - build review-diff.pdf (latexdiff between the
+#                           pre-revision paper/*.tex on the master branch
+#                           and the current revised content)
+#   make all-revision     - revision + diff (full submission package)
+#   make bioinfo          - build main.pdf via bioinfo.cls. Legacy. The
+#                           original submission was drafted against the
+#                           Oxford Bioinformatics class; the journal we
+#                           are now submitting to is G3, so this target is
+#                           kept only for archival comparison and is not
+#                           used for any submission deliverable.
 #   make clean            - remove build artifacts
 #
 # Optional dependencies for revision-related targets:
@@ -39,13 +49,7 @@ PAPER_TEX = paper/abstract.tex paper/introduction.tex paper/methods.tex \
 REVISION_DEPS = $(REVISION_TEX) $(PAPER_TEX) bibliography.bib \
                 review-response-commands.tex review-responses.tex
 
-all: $(ORIGINAL_PDF)
-
-$(ORIGINAL_PDF): $(ORIGINAL_TEX) $(PAPER_TEX) bibliography.bib bioinfo.cls
-	pdflatex $(ORIGINAL_BASE)
-	-bibtex $(ORIGINAL_BASE)
-	pdflatex $(ORIGINAL_BASE)
-	pdflatex $(ORIGINAL_BASE)
+all: $(PREPRINT_PDF)
 
 preprint: $(PREPRINT_PDF)
 
@@ -54,6 +58,14 @@ $(PREPRINT_PDF): $(PREPRINT_TEX) $(PAPER_TEX) bibliography.bib
 	-bibtex $(PREPRINT_BASE)
 	pdflatex $(PREPRINT_BASE)
 	pdflatex $(PREPRINT_BASE)
+
+bioinfo: $(ORIGINAL_PDF)
+
+$(ORIGINAL_PDF): $(ORIGINAL_TEX) $(PAPER_TEX) bibliography.bib bioinfo.cls
+	pdflatex $(ORIGINAL_BASE)
+	-bibtex $(ORIGINAL_BASE)
+	pdflatex $(ORIGINAL_BASE)
+	pdflatex $(ORIGINAL_BASE)
 
 # Revision build: compile once, then split the resulting PDF at the
 # page where the response document begins (recorded by LaTeX into
@@ -108,8 +120,12 @@ review-diff.tex: $(REVISION_TEX) $(PAPER_TEX)
 	@# Strip the response block from the revision tex
 	sed '/% === Review Responses/,/\\end{document}/d' $(REVISION_TEX) > revision-for-diff.tex
 	printf '\\end{document}\n' >> revision-for-diff.tex
-	@# Keep \linenumbers active in the diff -- review-response-commands.tex
-	@# defines \revpoint via \linelabel, which only works inside \linenumbers.
+	@# Replace \input{review-response-commands} with no-op macro defs --
+	@# latexdiff wraps \revpoint{...} in \DIFadd{...}, which interacts
+	@# badly with \linelabel; we don't need real back-links in the diff.
+	sed -i 's|\\input{review-response-commands}|\\newcommand{\\revpoint}[2]{}\\newcommand{\\revref}{}\\newcommand{\\llabel}[1]{}\\newcommand{\\llname}[1]{}|' revision-for-diff.tex
+	@# Drop \linenumbers from the diff so neither side has lineno active.
+	sed -i '/^\\linenumbers/d' revision-for-diff.tex
 	latexdiff --flatten preprint-orig.tex revision-for-diff.tex > review-diff.tex.tmp
 	grep -v '^WARNING:' review-diff.tex.tmp > review-diff.tex
 	rm -f preprint-orig.tex revision-for-diff.tex review-diff.tex.tmp
@@ -123,6 +139,9 @@ $(DIFF_PDF): review-diff.tex bibliography.bib
 
 all-revision: revision diff
 
+# Brace expansion requires bash, not /bin/sh. Force the shell.
+SHELL := /bin/bash
+
 clean:
 	rm -f $(ORIGINAL_BASE).{aux,bbl,blg,log,out,pdf,toc}
 	rm -f $(PREPRINT_BASE).{aux,bbl,blg,log,out,pdf,toc}
@@ -132,4 +151,4 @@ clean:
 	rm -f review-responses-pagenum.txt
 	rm -f revision-for-diff.tex review-diff.tex.tmp
 
-.PHONY: all preprint revision diff all-revision clean
+.PHONY: all preprint bioinfo revision diff all-revision clean

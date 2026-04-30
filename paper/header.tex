@@ -13,6 +13,15 @@
 % Commands
 \newcommand{\mkado}{\mbox{\texttt{MKado}}\xspace}
 
+% No-op fallbacks for review-response back-link macros. main_revision.tex
+% loads review-response-commands.tex (which provides the real \revpoint /
+% \llabel via \linelabel) before this header is read, so these
+% \providecommand calls are skipped there. preprint.tex and main.tex do
+% not load review-response-commands, so they fall through to these no-ops
+% and the manuscript still compiles cleanly.
+\providecommand{\revpoint}[2]{}
+\providecommand{\llabel}[1]{}
+
 \newcommand{\beginsupplement}{%
     \setcounter{table}{0}
     \renewcommand{\thetable}{S\arabic{table}}%
