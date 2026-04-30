@@ -7,14 +7,42 @@ Codon-aligned orthologous sequences
 for human (\textit{Homo sapiens}),
 chimpanzee (\textit{Pan troglodytes}),
 and orangutan (\textit{Pongo abelii})
-were obtained from \texttt{OrthoMaM} v12 \citep{orthomam2024}.
+were obtained from \texttt{OrthoMaM} v12 \citep{orthomam2024},
+which provides one canonical coding-sequence ortholog per gene
+across mammalian taxa.
 Human intraspecific polymorphism was drawn from 178 Yoruba (YRI)
 individuals in the 1000 Genomes Project NYGC high-coverage dataset
 \citep{1000genomes2015},
 yielding 356 phased haplotypes per gene.
-Variants were mapped onto the \texttt{OrthoMaM} alignment coordinates
-to produce multi-species FASTA files
-suitable for direct input to \mkado.
+
+\revpoint{1}{7}For each gene, polymorphism was projected onto the
+\texttt{OrthoMaM} alignment in five steps:
+(i)~the canonical Ensembl CDS for the gene was reconstructed from
+the GRCh38 reference and the GTF-derived exon set, providing the
+mapping from CDS position to genomic coordinate;
+(ii)~the ungapped human row of the \texttt{OrthoMaM} alignment was
+matched against the Ensembl CDS to obtain the alignment-column to
+CDS-position correspondence (genes for which this match failed,
+typically because of curation differences between
+\texttt{OrthoMaM} and Ensembl, were dropped);
+(iii)~for every CDS position that survived this match, the
+overlapping YRI variants were extracted from the 1000 Genomes
+NYGC VCF, with reference-allele identity confirmed and
+minus-strand alleles complemented to match the CDS orientation;
+(iv)~per-individual phased haplotypes were assembled from the
+extracted variants, yielding 356 human haplotype sequences over
+the Ensembl CDS positions retained by \texttt{OrthoMaM}; and
+(v)~these haplotypes were re-gapped to the \texttt{OrthoMaM}
+alignment, dropping any human-CDS columns absent from the
+\texttt{OrthoMaM} alignment and inserting the alignment's
+existing gap structure (so insertions, deletions, and
+non-aligned regions in the multi-species alignment are
+preserved). Chimpanzee and orangutan sequences were taken
+directly from the \texttt{OrthoMaM} alignment. Multi-transcript
+genes are reduced to the single canonical CDS chosen by the
+\texttt{OrthoMaM} curation; alternative transcripts are not
+analysed separately. The resulting per-gene multi-species FASTAs
+are codon-aligned and ready for direct input to \mkado.
 
 Using orangutan as the outgroup,
 genome-wide pooled counts were
@@ -23,14 +51,15 @@ and $P_s$\,=\,47,838.
 The per-gene standard MK test identified numerous genes
 with significant departures from neutrality,
 including genes significant after Bonferroni correction
-(\cref{fig:volcano}A). As expected,
+(volcano plot, left panel of \cref{fig:volcano})\revpoint{2}{3}.
+As expected,
 the majority of testable genes showed NI~$>$~1,
 reflecting the well-characterized excess
 of slightly deleterious nonsynonymous polymorphism in humans
 \citep{li2008}.
 Using chimpanzee as the outgroup yielded fewer fixed differences
 ($D_n$\,=\,37,120, $D_s$\,=\,65,228), roughly 2.5-fold less than
-orangutan (\cref{fig:chimp_mk}A),
+orangutan (left panel of \cref{fig:chimp_mk}),
 and no individual genes survived Bonferroni correction,
 consistent with the limited power of single-gene tests
 at shorter divergence times.
@@ -70,13 +99,13 @@ which models the frequency dependence of $\alpha$
 and extrapolates to fixation \citep{messer2013},
 successfully recovered a positive signal of adaptive evolution,
 estimating $\hat{\alpha} = 0.163$
-(95\% CI: 0.075 to 0.253; \cref{fig:volcano}B)
+(95\% CI: 0.075 to 0.253; right panel of \cref{fig:volcano})
 using orangutan as the outgroup,
 indicating that approximately 16\% of amino acid substitutions
 on the human lineage were driven by positive selection.
 With chimpanzee as the outgroup the estimate widened to
 $\hat{\alpha} = 0.075$ (95\% CI: $-1.22$ to $0.11$;
-\cref{fig:chimp_mk}B),
+right panel of \cref{fig:chimp_mk}),
 illustrating the greater uncertainty
 from the shallower divergence, but also indicating 
 a potential biological signal of less frequent adaptive evolution

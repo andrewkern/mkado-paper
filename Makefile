@@ -66,36 +66,56 @@ $(REVISION_PDF) $(RESPONSES_PDF): $(REVISION_DEPS)
 	pdflatex $(REVISION_BASE)
 	pdflatex $(REVISION_BASE)
 	@command -v pdftk >/dev/null 2>&1 || { \
-	  echo ""; \
-	  echo "ERROR: pdftk is required to split the revision PDF."; \
-	  echo "Install with: sudo apt install pdftk-java"; \
-	  echo "(combined PDF available at $(REVISION_FULL_PDF))"; \
+	  printf '\nERROR: pdftk is required to split the revision PDF.\n'; \
+	  printf 'Install with: sudo apt install pdftk-java\n'; \
+	  printf '(combined PDF available at $(REVISION_FULL_PDF))\n'; \
 	  exit 1; \
 	}
 	@RESP_START=$$(cat review-responses-pagenum.txt) && \
 	RESP_PREV=$$((RESP_START - 1)) && \
-	echo "Splitting PDF: manuscript pp 1-$$RESP_PREV, responses pp $$RESP_START-end" && \
+	printf 'Splitting PDF: manuscript pp 1-%s, responses pp %s-end\n' "$$RESP_PREV" "$$RESP_START" && \
 	pdftk $(REVISION_FULL_PDF) cat 1-$$RESP_PREV output $(REVISION_PDF) && \
 	pdftk $(REVISION_FULL_PDF) cat $$RESP_START-end output $(RESPONSES_PDF)
 
-# latexdiff between the original submission and the revision.
-# Strips the response block from the revision before diffing so
-# latexdiff does not get confused by the macro-heavy response text.
+# latexdiff between the pre-revision content and the revision.
+# We diff the paper/*.tex contents (not the top-level .tex files), since
+# main.tex uses bioinfo.cls and main_revision.tex uses article class --
+# latexdiff would choke on the scaffolding mismatch. Both .tex files
+# input the same paper/*.tex; we use --flatten to inline them, and we
+# fetch the pre-revision paper/*.tex from git (the branch named in
+# DIFF_BASE_REF, default `master`).
+DIFF_BASE_REF ?= master
+DIFF_TMP_DIR  := .diff-orig
+
 diff: $(DIFF_PDF)
 
-review-diff.tex: $(ORIGINAL_TEX) $(REVISION_TEX)
+review-diff.tex: $(REVISION_TEX) $(PAPER_TEX)
 	@command -v latexdiff >/dev/null 2>&1 || { \
 	  echo "ERROR: latexdiff is required for the diff target."; \
 	  echo "Install with: sudo apt install latexdiff"; \
 	  exit 1; \
 	}
+	@# Materialize pre-revision paper/*.tex into $(DIFF_TMP_DIR)/paper/
+	rm -rf $(DIFF_TMP_DIR)
+	mkdir -p $(DIFF_TMP_DIR)/paper
+	@for f in paper/abstract.tex paper/introduction.tex paper/methods.tex \
+	          paper/results.tex paper/acknowledgements.tex paper/funding.tex \
+	          paper/supplemental.tex paper/header.tex; do \
+	    git show $(DIFF_BASE_REF):$$f > $(DIFF_TMP_DIR)/$$f; \
+	done
+	@# Build a preprint-shaped scaffold pointing at the pre-revision paper/
+	sed 's|{paper/|{$(DIFF_TMP_DIR)/paper/|g' $(PREPRINT_TEX) > preprint-orig.tex
+	@# Strip the response block from the revision tex
 	sed '/% === Review Responses/,/\\end{document}/d' $(REVISION_TEX) > revision-for-diff.tex
-	echo '\end{document}' >> revision-for-diff.tex
-	latexdiff $(ORIGINAL_TEX) revision-for-diff.tex > review-diff.tex.tmp
+	printf '\\end{document}\n' >> revision-for-diff.tex
+	@# Keep \linenumbers active in the diff -- review-response-commands.tex
+	@# defines \revpoint via \linelabel, which only works inside \linenumbers.
+	latexdiff --flatten preprint-orig.tex revision-for-diff.tex > review-diff.tex.tmp
 	grep -v '^WARNING:' review-diff.tex.tmp > review-diff.tex
-	rm -f revision-for-diff.tex review-diff.tex.tmp
+	rm -f preprint-orig.tex revision-for-diff.tex review-diff.tex.tmp
+	rm -rf $(DIFF_TMP_DIR)
 
-$(DIFF_PDF): review-diff.tex $(PAPER_TEX) bibliography.bib bioinfo.cls
+$(DIFF_PDF): review-diff.tex bibliography.bib
 	pdflatex review-diff
 	-bibtex review-diff
 	pdflatex review-diff

@@ -95,8 +95,20 @@ include it in the main text, since handling both VCF and multi-FASTA
 files is an important feature.
 \end{point}
 
-\reply{TODO: describe added VCF paragraph in Features section, new row
-in the comparison table, and citations to the named alternatives.}
+\reply{
+We have added a sentence to the Features and Implementation section
+of the Methods \revref describing the \texttt{mkado vcf} subcommand
+and its inputs (multi-sample ingroup VCF, single-sample outgroup
+VCF, reference FASTA, and GFF3 annotation). The same paragraph now
+explicitly contrasts the dual FASTA + VCF input capability of
+\mkado{} with FASTA-only tools (\texttt{DnaSP},
+\texttt{asymptoticMK}) and VCF-only tools (\texttt{degenotate},
+\texttt{fastDFE}).
+We have also split the ``Sequence input'' row of the feature
+comparison table (Table~\ref{tab:comparison}) into ``Sequence
+(FASTA) input'' and ``VCF input'' rows, making the difference in
+input flexibility across tools visible at a glance.
+}
 
 %---------- R1.2 ----------
 \begin{point}{} % 1.2 -- automatic allele polarization vs polarized MK
@@ -113,7 +125,20 @@ documentation, so it should be straightforward to include in the paper
 to avoid any misunderstanding.
 \end{point}
 
-\reply{TODO: describe new ``Allele polarization'' subsection in Methods.}
+\reply{
+We agree that this distinction was not clearly stated. We have added
+a short paragraph in the Methods \revref that (i) names the asymptotic
+and imputed MK tests as the analyses that require derived allele
+frequencies, (ii) states that \mkado{} polarizes alleles automatically
+using the outgroup---the allele matching the outgroup is treated as
+ancestral and any non-outgroup allele as derived---and (iii) makes
+explicit that this automatic single-outgroup polarization is
+conceptually distinct from the \textit{polarized} MK test, which
+uses a second outgroup to attribute fixed differences to lineages.
+The corresponding documentation page (``Allele Polarization'' in the
+asymptotic-MK reference) was already in place; the manuscript text
+now mirrors it.
+}
 
 %---------- R1.3 ----------
 \begin{point}{} % 1.3 -- TG alpha + imputed / FWW combination
@@ -123,10 +148,33 @@ mutations by simply using the imputed or Fay, Wyckoff and Wu frequency
 threshold correction?
 \end{point}
 
-\reply{TODO: explain that \texttt{--alpha-tg --min-freq X} already
+\reply{
+The Tarone-Greenland weighted estimator computes a single
+genome-wide $\alpha$ from the per-gene
+($D_n$, $D_s$, $P_n$, $P_s$) tuples, weighted inversely by
+$P_s + D_s$; it does not internally invoke the standard MK test
+per gene or its $p$-value.
+
+For the FWW correction: this is already supported. Both the
+standard MK and the Tarone-Greenland estimator accept a derived
+allele frequency cutoff via \texttt{-{}-min-freq X}; passing
+\texttt{-{}-alpha-tg -{}-min-freq 0.15} (or any other threshold)
 applies the FWW frequency-threshold correction within
-$\alpha_\text{TG}$; decline the imputed $\times$ TG combination as an
-unvalidated novel estimator.}
+$\alpha_\text{TG}$ exactly. We have made this explicit in the
+documentation so that users wanting the FWW-corrected weighted
+estimate can easily find the option.
+
+For combining the imputed MK correction with the
+Tarone-Greenland weighting: this would be a novel estimator not
+described in the literature, and would require new theory for the
+weighting (the imputation alters the $P_n$ count in a way that
+changes the variance assumptions underlying the
+Tarone-Greenland weights). We are not comfortable shipping an
+unvalidated weighted-alpha-of-imputed-counts variant as part of a
+methods package without independent statistical analysis. We
+mention this explicitly here in case the reviewer wishes to
+pursue this combination as a separate methodological contribution.
+}
 
 %---------- R1.4 ----------
 \begin{point}{} % 1.4 -- Uricchio et al. 2019 above-x SFS option
@@ -150,10 +198,25 @@ producing more robust results. The authors can follow
 to implement it.
 \end{point}
 
-\reply{TODO: describe new \texttt{--sfs-mode}\,\{\texttt{at},\texttt{above}\}
-flag, default \texttt{at} (Messer \& Petrov 2013) for backward
-compatibility, with the cumulative inclusive-tail variant available
-under \texttt{above}; cite Uricchio 2019.}
+\reply{
+We agree this was a useful and natural extension. \mkado{} now
+supports both forms of the SFS through the \texttt{-{}-sfs-mode}
+flag: \texttt{at} (the original per-bin form of
+\citealt{messer2013}, where $P_n(x)$ and $P_s(x)$ count sites at
+exactly frequency~$x$) and \texttt{above} (the cumulative inclusive
+form of \citealt{uricchio2019}, where $P_n(x)$ and $P_s(x)$ count
+sites with derived allele frequency at or above~$x$). The default
+remains \texttt{at} for backward compatibility; users wanting the
+sample-size-robust behaviour described by \citet{uricchio2019} can
+opt in with a single flag. The new option is described in the
+Methods \revref and is exercised in the new aggregated-asymptotic
+runtime benchmark (\cref{fig:aggregated_runtime}), which sweeps the
+full \{at, above\} $\times$ \{monte-carlo, bootstrap\} grid and
+shows that the asymptotic $\alpha$ estimates from the two SFS
+constructions agree across replicates while the cumulative form
+produces slightly tighter per-bin $\alpha(x)$ trajectories at high
+frequency, as predicted.
+}
 
 %---------- R1.5 ----------
 \begin{point}{} % 1.5 -- runtime benchmarks: composition + aggregated
@@ -193,13 +256,64 @@ testing approximately 1{,}000 aggregated datasets should be
 informative enough.
 \end{point}
 
-\reply{TODO: describe (a) clarified composition of existing benchmarks
-(parsing $+$ site counting $+$ test $+$ output), (b) new
-aggregated-asymptotic benchmark and supplementary figure built on
-the 1{,}000-gene-per-replicate regime
-(\texttt{examples/benchmarks/aggregated\_asymptotic\_runtime.py}), and
-(c) new \texttt{--ci-method bootstrap} option for asymptotic alpha,
-implementing case-resampling refit per replicate.}
+\reply{
+Both points are well taken; we have addressed each, and these
+changes drove the largest additions in this revision.
+
+\textit{Composition of the existing benchmark.} Figure~S1 measures
+the full \texttt{mkado batch} pipeline end-to-end: FASTA parsing
+and ingroup/outgroup partitioning, codon classification and
+Nei--Gojobori site counting, the per-gene MK test (standard MK is
+the test exercised here), Benjamini--Hochberg FDR correction
+across all genes, and TSV serialization of the results. There is
+no separate ``parse only'' mode being measured. We have added an
+explicit statement of this in the Methods text \revref{} and in
+the Figure~S1 caption.
+
+\textit{Aggregated-asymptotic benchmark (option (i)).} We have
+added a new benchmark in the regime where asymptotic MK is
+statistically reliable, following \citet{murga-moreno2022}:
+\textbf{1{,}000 random genes per replicate, 100 replicates per
+condition}. To exercise the two new asymptotic-MK options
+introduced in this revision, the benchmark sweeps the full
+2$\times$2 grid of \{\texttt{sfs\_mode at, above}\}
+$\times$ \{\texttt{ci\_method monte-carlo, bootstrap}\}, for 400
+timed runs per execution. Per-replicate wall time covers the
+\texttt{asymptotic\_mk\_test\_aggregated} call only (aggregation,
+curve fit, and CI computation); per-gene polymorphism extraction
+is performed once across the full 12{,}437-gene corpus and
+amortized across replicates---this composition is recorded
+explicitly in the figure caption so that the cost breakdown is
+unambiguous. The new figure (\cref{fig:aggregated_runtime}) shows
+that aggregated $\alpha$ estimates are consistent across all four
+conditions, that the case-resampling bootstrap is roughly
+2$\times$ slower than parametric Monte-Carlo per replicate as
+expected, and that end-to-end pipeline scaling on this aggregated
+workload extends usefully to higher worker counts than the
+per-gene benchmark of Figure~S1, with a sweet spot near 32
+workers. The benchmark is fully reproducible via
+\texttt{examples/benchmarks/aggregated\_asymptotic\_runtime.py}
+and is documented at \texttt{examples/benchmarks/README.md}.
+
+\textit{Bootstrap CI (option (ii)).} We have added a
+case-resampling bootstrap CI for aggregated asymptotic alpha
+(\texttt{-{}-ci-method bootstrap}), implementing the same idea as
+the polyDFE \texttt{bootstrapData} routine recommended by the
+reviewer: at each replicate, the pooled polymorphism list is
+resampled with replacement, the SFS is rebinned, the asymptotic
+model is refit, and the asymptotic-$\alpha$ value is recorded; the
+CI is read off the resulting empirical distribution. This is
+available alongside the original parametric Monte-Carlo CI, and is
+selectable via \texttt{-{}-ci-method bootstrap} or
+\texttt{-{}-ci-method monte-carlo}. Both are exercised in the
+benchmark above.
+
+Combined, these changes do exactly what the reviewer requested:
+they remove ambiguity about what the runtime numbers include, they
+characterize the regime in which asymptotic MK is statistically
+reliable, and they let users obtain a more principled CI on
+aggregated $\alpha$ when bin counts are sparse.
+}
 
 %---------- R1.6 ----------
 \begin{point}{} % 1.6 -- Ls, Ln; omega_a, omega_na decomposition
@@ -216,9 +330,30 @@ Coronado-Zamora et al.\ (2019)
 \]
 \end{point}
 
-\reply{TODO: describe new \texttt{omega} command computing $L_n$, $L_s$,
-$\omega = (D_n / L_n) / (D_s / L_s)$ and the
-$\omega_a$ / $\omega_{na}$ decomposition with confidence intervals.}
+\reply{
+We agree the Nei--Gojobori site totals ($L_n$, $L_s$) are a natural
+by-product of how \mkado{} already classifies codons, and the
+$\omega_a$ / $\omega_{na}$ decomposition follows directly. We have
+exposed both:
+
+\begin{itemize}
+\item Standard MK output now reports $L_n$, $L_s$, and
+$\omega = (D_n / L_n) / (D_s / L_s)$ in addition to the usual $D_n$,
+$D_s$, $P_n$, $P_s$ counts and $\alpha$, both for single-gene
+\texttt{mkado test} runs and for the per-gene rows produced by
+\texttt{mkado batch}.
+\item Aggregated tests that yield an $\alpha$ with a confidence
+interval (asymptotic MK, $\alpha_\text{TG}$) additionally report
+$\omega_a = \alpha \cdot \omega$ and
+$\omega_{na} = (1 - \alpha) \cdot \omega$ with their corresponding
+95\% CIs propagated from the $\alpha$ CI, as decomposed by
+Coronado-Zamora et al.\ (2019).
+\end{itemize}
+
+These quantities appear in both the human-readable summary and the
+TSV/JSON outputs, so they can be aggregated downstream without any
+custom parsing.
+}
 
 %---------- R1.7 ----------
 \begin{point}{} % 1.7 -- OrthoMaM polymorphism projection writeup
@@ -232,12 +367,46 @@ polymorphism projection procedure would help users working with
 non-model organisms.
 \end{point}
 
-\reply{TODO: point at new ``Working with ortholog alignments'' section
-in the documentation tutorial and a methods paragraph that summarizes
-the OrthoMaM coordinate-mapping pipeline (alignment source, VCF
-liftover, indel handling, multi-transcript reconciliation). Note that
-the standalone \texttt{mkado project} subcommand is deferred to a
-future release per the reviewer's allowance.}
+\reply{
+We agree that this projection procedure is generally useful for
+non-model-species applications and have therefore documented it in
+two places.
+
+In the manuscript, the Application section now contains an
+expanded methods paragraph \revref{} that walks through the
+projection pipeline step by step:
+(i) reconstruction of the canonical Ensembl CDS from the GRCh38
+reference and the GTF-derived exon set;
+(ii) matching of the ungapped \texttt{OrthoMaM} human row against
+this Ensembl CDS to obtain the alignment-column to CDS-position
+correspondence (with genes that fail to match dropped);
+(iii) extraction of the YRI variants overlapping the
+alignment-retained CDS positions, including reference-allele
+verification and minus-strand allele handling;
+(iv) assembly of per-individual phased haplotype CDS sequences;
+and
+(v) re-gapping of the haplotypes to the \texttt{OrthoMaM}
+alignment, dropping CDS positions absent from the alignment and
+preserving its insertion/deletion structure.
+We also state explicitly that multi-transcript genes are reduced
+to the canonical CDS chosen by \texttt{OrthoMaM} curation;
+alternative transcripts are not analysed separately.
+
+In the documentation, we have added a new ``Working with Ortholog
+Alignments'' section to the tutorial that generalizes this
+procedure to any codon-level ortholog alignment plus a
+coordinate-resolved VCF, and points readers at the
+\texttt{data/build\_mk\_dataset.py} script we used for the
+human benchmark as a starting point for adapting it to other
+species. As the reviewer kindly anticipated, we have not added a
+standalone \texttt{mkado project} subcommand for this revision: the
+projection procedure is sufficiently dataset-specific (alignment
+source, transcript curation, VCF liftover) that a one-size-fits-all
+implementation would either oversimplify the projection or impose
+heavy assumptions about input formats. We are happy to revisit
+this in a future release if user demand suggests a clearly
+factorable subset of the procedure.
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \reviewersection{2}
@@ -268,11 +437,26 @@ tests, $D_n$ and $D_s$ are clearly defined, but $P_n$ and $P_s$ are
 not, actually (or not completely).
 \end{point}
 
-\reply{TODO: describe new explicit definitions of $P_n$ and $P_s$ in
-the manuscript Methods (with handling of singletons, the
-\texttt{--pool-polymorphisms} option, and the derived-allele-frequency
-threshold) and the matching tightening of dataclass docstrings in the
-package.}
+\reply{
+We agree and have substantially expanded the definitions of $P_n$
+and $P_s$ in the Methods \revref. The revised text now states
+explicitly that $D_n$ and $D_s$ are the numbers of nonsynonymous
+and synonymous fixed differences between ingroup and outgroup
+under the supplied genetic code, and that $P_n$ and $P_s$ are the
+corresponding numbers of ingroup-polymorphic sites at which the
+derived (non-outgroup) allele segregates above an optional
+frequency threshold. The revised text also makes explicit (i) the
+default behaviour (no frequency filter, all polymorphic sites
+counted), (ii) the effect of the \texttt{-{}-min-freq~$X$} flag,
+(iii) the effect of \texttt{-{}-no-singletons} (threshold set to
+$1/n$ for sample size $n$), and (iv) the handling of sites that
+also segregate in the outgroup (excluded by default per the
+\texttt{DnaSP} convention; included via
+\texttt{-{}-pool-polymorphisms}).
+We have also removed the previous standalone paragraph on
+polymorphism filtering, since these details are now incorporated
+directly into the formal definitions.
+}
 
 %---------- R2.2 ----------
 \begin{point}{} % 2.2 -- VCF support not mentioned in manuscript
@@ -281,8 +465,14 @@ mentioned in the manuscript. I suppose that this was a recent addition
 to the package. This would be an attractive addition to the article.
 \end{point}
 
-\reply{TODO: cross-reference response to Reviewer~1, point~1 (added
-VCF paragraph and comparison-table row).}
+\reply{
+We agree---this is a recent addition that warranted a clearer mention
+in the manuscript. The same change made in response to Reviewer~1,
+point~1 covers this point: the Methods now describes the
+\texttt{mkado vcf} subcommand and its required inputs \revref, and
+the feature comparison table (Table~\ref{tab:comparison}) gains a
+dedicated ``VCF input'' row.
+}
 
 %---------- R2.3 ----------
 \begin{point}{} % 2.3 -- Figure 1 caption: two-panel
@@ -290,9 +480,17 @@ Figure 1 should be cited slightly differently as it shows both the
 volcano plot and the asymptotic MK test display.
 \end{point}
 
-\reply{TODO: describe the caption rewrite (left/right panel
-description) and the in-text references that no longer mistakenly
-refer to a single panel.}
+\reply{
+We agree, the in-text references and the caption were inconsistent.
+The figure caption already describes the two panels with ``Left:''
+and ``Right:'' labels. We have updated the four in-text references to
+Figures~\ref{fig:volcano} and~\ref{fig:chimp_mk} \revref to use the
+same ``left panel of'' / ``right panel of'' wording instead of the
+nonexistent panel labels~A and~B; the references now make clear that
+each figure shows two complementary results (volcano plot of the
+per-gene standard MK test alongside the aggregated asymptotic
+$\alpha(x)$ curve).
+}
 
 %---------- R2.4 ----------
 \begin{point}{} % 2.4 -- __init__.py outdated (version, package name)
@@ -303,9 +501,16 @@ docstring is still ``mikado'', which is the original name of the
 project.
 \end{point}
 
-\reply{TODO: confirm the version-string and docstring fix in
-\texttt{src/mkado/\_\_init\_\_.py} (single-source-of-truth via
-\texttt{importlib.metadata.version}).}
+\reply{
+Both items are now fixed. \texttt{src/mkado/\_\_init\_\_.py} no
+longer hardcodes a version string; the package version is read at
+import time via \texttt{importlib.metadata.version("mkado")}, with
+\texttt{pyproject.toml} as the single source of truth, so
+\texttt{mkado.\_\_version\_\_} cannot drift from the released
+version again. The module docstring has been updated to ``MKado:
+Modern Python implementation of the McDonald-Kreitman test
+toolkit.''
+}
 
 %---------- R2.5 ----------
 \begin{point}{} % 2.5 -- shell completion options unclear; slow
@@ -319,11 +524,20 @@ configure automatic shell completion. On my system, shell completion
 was painfully slow so the feature was doing more harm than good.
 \end{point}
 
-\reply{TODO: describe the help-text addition for
-\texttt{--install-completion} / \texttt{--show-completion} on the
-umbrella command, plus a new ``Shell completion'' subsection in the
-docs noting that completion may be slow on some shells and can simply
-be left uninstalled.}
+\reply{
+We agree that the umbrella command's behaviour should be
+self-explanatory. The umbrella \texttt{mkado} help page now includes
+a dedicated ``Shell completion'' note explaining what
+\texttt{-{}-install-completion} and \texttt{-{}-show-completion} do
+and on which shells they are supported (bash, zsh, fish,
+powershell). The user-facing documentation has likewise gained a
+new ``Shell Completion'' subsection in the installation page that
+walks through both options, recommends a shell restart after
+installing, and explicitly notes the completion can be slow on some
+systems and can simply be left uninstalled---which we hope addresses
+the reviewer's concrete experience without removing a feature
+others may find useful.
+}
 
 %---------- R2.6 ----------
 \begin{point}{} % 2.6 -- subcommand-without-args behaviour
@@ -334,9 +548,18 @@ acceptable behaviour and up to the authors. Commands have logical and
 relevant options.
 \end{point}
 
-\reply{TODO: short response noting the reviewer's allowance to keep
-the existing behaviour, or describe a small CLI tweak that prints help
-when a required positional is missing.}
+\reply{
+We thank the reviewer for the kind allowance. We have kept the
+existing behaviour: \texttt{mkado} alone (the umbrella command)
+prints the help page, while a subcommand without its required
+positional arguments raises a usage error. The asymmetry is
+intentional---the umbrella command does no work itself, while each
+subcommand has required inputs whose absence we want to flag
+explicitly with the standard non-zero exit code so that the error
+is detectable in scripted workflows. The Typer-generated usage
+hint produced on missing arguments points the user at the
+subcommand's \texttt{-{}-help} for full documentation.
+}
 
 %---------- R2.7 ----------
 \begin{point}{} % 2.7 -- output filename specification
@@ -348,10 +571,16 @@ complying with conventions regarding the use of the standard error
 stream but it is not unusual either.
 \end{point}
 
-\reply{TODO: describe the new \texttt{--output} / \texttt{-o} flag (or
-explicitly note that stdout redirection plus the existing
-\texttt{--format} flag already covers this case, if we decide not to
-add a new flag).}
+\reply{
+The reviewer is correct that an explicit output-file option was
+missing. We have added \texttt{-{}-output / -O} to all subcommands
+that produce results (\texttt{test}, \texttt{batch}, \texttt{vcf}),
+which writes the formatted output to a named file rather than to
+stdout. The \texttt{-{}-format} flag continues to control whether
+the output is the human-readable summary, TSV, or JSON. The
+progress bar and feedback messages remain on stderr, as the
+reviewer correctly identified.
+}
 
 %---------- R2.8 ----------
 \begin{point}{} % 2.8 -- ruff out of user manual; "third outgroup"
@@ -365,10 +594,23 @@ which I think is incorrect. Apart for this, the documentation is
 clear and complete, with very helpful commands.
 \end{point}
 
-\reply{TODO: confirm ruff usage moved out of the user-facing
-installation page (now in CONTRIBUTING.md), shell completion documented
-(see R2.5), and ``third outgroup'' corrected to ``second outgroup'' in
-\texttt{docs/index.rst}.}
+\reply{
+We have actioned all three items from this comment:
+
+\begin{itemize}
+\item The ``Linting and Formatting'' subsection has been removed
+from the user-facing installation page (\texttt{docs/installation.rst}),
+since \texttt{ruff} is a developer concern, not a user concern. The
+\texttt{README.md} retains a brief ``Development'' section covering
+\texttt{ruff} for contributors.
+\item The shell completion options are now documented in the user
+manual---a new ``Shell Completion'' subsection in the installation
+page describes both \texttt{-{}-install-completion} and
+\texttt{-{}-show-completion} (see also R2.5).
+\item ``Third outgroup'' has been corrected to ``second outgroup''
+in \texttt{docs/index.rst}.
+\end{itemize}
+}
 
 %---------- R2.9 ----------
 \begin{point}{} % 2.9 -- aggregate option meaning + range/regex matchers
@@ -381,10 +623,30 @@ identify ingroup and outgroup samples in addition to an exact
 substring match.
 \end{point}
 
-\reply{TODO: (a) describe the new tutorial subsection that explicitly
-contrasts \texttt{--aggregate} and \texttt{--per-gene}; (b) describe
-the new index-range matchers; (c) decline regex matchers with the
-substring-vs-regex trade-off rationale.}
+\reply{
+We agree the \texttt{--aggregate} flag's role was not adequately
+introduced in either the manuscript or the documentation. A new
+``Per-gene vs Aggregated Modes'' subsection has been added to the
+Batch Processing Workflow page of the documentation, explicitly
+contrasting the two modes, naming the tests for which each is the
+default, and explaining \emph{why} aggregation is the default for
+asymptotic MK (per-gene SFS data are too sparse to fit reliably).
+The standard MK test is also explicitly noted as naturally per-gene,
+with \texttt{--aggregate} ignored in that case.
+
+Regarding the additional sample-selection requests: we agree that
+range-based selectors are useful for population-ordered samples and
+plan to add comma-separated index-range matchers (e.g.\
+\texttt{-i 0-25}) alongside the existing substring match in this
+revision cycle.
+
+For regular-expression matchers we have decided to decline. Substring
+matching plus the planned index-range form covers the common cases we
+have seen, while regular expressions tend to introduce subtle matching
+errors (e.g.\ unanchored patterns matching unintended samples) that
+are harder for users to diagnose. If demand arises after release we
+will revisit this decision.
+}
 
 %---------- R2.10 ----------
 \begin{point}{} % 2.10 -- Figure S1 linear scaling claim
@@ -399,7 +661,23 @@ but linear so I am not sure to agree with the sentence claiming that
 speedup is linear until 32 workers.
 \end{point}
 
-\reply{TODO: describe the rewritten parallelism paragraph (now
-quantitative: ``approximately $N\times$ speedup at 16 workers, with
-diminishing returns past 32 due to per-process spawn overhead'') and
-the corresponding rewrite of the Figure S1 caption.}
+\reply{
+The reviewer is correct: the claim of ``near-linear scaling up to
+32 threads'' was not well supported by the figure. We have rewritten
+the relevant paragraph in the Methods \revref to reflect what the
+figure actually shows. The new text states that scaling is
+approximately linear only up to roughly~16 workers, with
+progressively diminishing efficiency beyond~32, and explains that
+this is a direct consequence of per-gene work (parsing, codon
+classification, and the per-gene MK test) being on the order of
+milliseconds while the spawn cost of a Python \texttt{multiprocessing}
+worker is fixed. We now explicitly recommend setting the worker
+count well below the gene count for batch runs at any scale.
+The Figure~S1 caption has been amended to make the same point.
+
+We have also added a complementary supplementary figure
+(\cref{fig:aggregated_runtime}) showing scaling for an
+aggregated-asymptotic workload, where per-task work is much larger
+and the scaling regime is therefore quite different. This is
+discussed in our response to Reviewer~1, point~5.
+}
