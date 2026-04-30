@@ -47,7 +47,7 @@
     \{at, above\} $\times$ ci-method $\in$ \{monte-carlo,
     bootstrap\}, over 100 replicates of 1{,}000 randomly sampled
     human protein-coding genes per replicate. The leftmost panel,
-    when present, additionally reports end-to-end pipeline wall
+    reports end-to-end pipeline wall
     time at worker counts of 8, 16, 32, and 64. Per-replicate wall
     time covers the aggregated asymptotic-MK call only
     (aggregation, curve fit, and CI computation); per-gene
@@ -55,11 +55,8 @@
     outgroup, classifying nonsynonymous and synonymous polymorphism,
     and Nei--Gojobori site counting) runs once across all genes,
     is cached to disk, and is amortized across replicates---its
-    one-time wall time is reported in the figure title. Method
-    rather than sample variance dominates: the same per-replicate
-    seeds are reused across the four cells of the grid, so each
-    cell sees the same 100 gene subsets. The benchmark is
-    reproducible via the
+    one-time wall time is reported in the figure title. 
+    The benchmark is reproducible via the
     aggregated-asymptotic-runtime script in the
     \texttt{examples/benchmarks/} directory of the repository.}
   \label{fig:aggregated_runtime}
