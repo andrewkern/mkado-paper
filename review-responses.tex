@@ -531,18 +531,19 @@ was painfully slow so the feature was doing more harm than good.
 \end{point}
 
 \reply{
-We agree that the umbrella command's behaviour should be
-self-explanatory. The umbrella \texttt{mkado} help page now includes
-a dedicated ``Shell completion'' note explaining what
-\texttt{-{}-install-completion} and \texttt{-{}-show-completion} do
-and on which shells they are supported (bash, zsh, fish,
-powershell). The user-facing documentation has likewise gained a
-new ``Shell Completion'' subsection in the installation page that
-walks through both options, recommends a shell restart after
-installing, and explicitly notes the completion can be slow on some
-systems and can simply be left uninstalled---which we hope addresses
-the reviewer's concrete experience without removing a feature
-others may find useful.
+We agree that the shell-completion options were not pulling their
+weight on the umbrella command. The reviewer's report that
+completion was painfully slow on their system is consistent with
+\mkado{}'s start-up cost: every completion roundtrip pays the cost
+of importing the full package, including \texttt{scipy}, which
+takes order-second wall time on common systems. Rather than
+document a feature that produces a poor first-time experience, we
+have disabled it: \texttt{mkado} is now constructed with
+\texttt{typer.Typer(add\_completion=False)}, which removes both
+\texttt{-{}-install-completion} and \texttt{-{}-show-completion}
+from the umbrella command. Users who do want completion can still
+hand-roll it with their shell of choice, but \mkado{} no longer
+advertises a feature that gives a slow user-visible signal.
 }
 
 %---------- R2.6 ----------
@@ -609,10 +610,10 @@ from the user-facing installation page (\texttt{docs/installation.rst}),
 since \texttt{ruff} is a developer concern, not a user concern. The
 \texttt{README.md} retains a brief ``Development'' section covering
 \texttt{ruff} for contributors.
-\item The shell completion options are now documented in the user
-manual---a new ``Shell Completion'' subsection in the installation
-page describes both \texttt{-{}-install-completion} and
-\texttt{-{}-show-completion} (see also R2.5).
+\item The shell completion options have been removed entirely from
+\mkado{} (see our response to R2.5), so there is no longer anything
+to document. The reviewer's separate observation that they were
+slow on their system was the deciding factor.
 \item ``Third outgroup'' has been corrected to ``second outgroup''
 in \texttt{docs/index.rst}.
 \end{itemize}
