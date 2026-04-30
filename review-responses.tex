@@ -163,9 +163,12 @@ standard MK and the Tarone-Greenland estimator accept a derived
 allele frequency cutoff via \texttt{-{}-min-freq X}; passing
 \texttt{-{}-alpha-tg -{}-min-freq 0.15} (or any other threshold)
 applies the FWW frequency-threshold correction within
-$\alpha_\text{TG}$ exactly. We have made this explicit in the
-documentation so that users wanting the FWW-corrected weighted
-estimate can easily find the option.
+$\alpha_\text{TG}$ exactly. We have added a ``Frequency-Threshold
+Correction (FWW)'' subsection to the $\alpha_\text{TG}$
+documentation page describing this combination, with a
+\citet{fay2001} citation and a worked example, so that users
+wanting the FWW-corrected weighted estimate can find the option
+directly.
 
 For combining the imputed MK correction with the
 Tarone-Greenland weighting: this would be a novel estimator not
@@ -215,10 +218,8 @@ opt in with a single flag. The new option is described in the
 Methods \revref and is exercised in the new aggregated-asymptotic
 runtime benchmark (\cref{fig:aggregated_runtime}), which sweeps the
 full \{at, above\} $\times$ \{monte-carlo, bootstrap\} grid and
-shows that the asymptotic $\alpha$ estimates from the two SFS
-constructions agree across replicates while the cumulative form
-produces slightly tighter per-bin $\alpha(x)$ trajectories at high
-frequency, as predicted.
+confirms that the asymptotic $\alpha$ estimates from the two SFS
+constructions are statistically consistent across replicates.
 }
 
 %---------- R1.5 ----------
@@ -289,9 +290,11 @@ amortized across replicates---this composition is recorded
 explicitly in the figure caption so that the cost breakdown is
 unambiguous. The new figure (\cref{fig:aggregated_runtime}) shows
 that aggregated $\alpha$ estimates are consistent across all four
-conditions, that the case-resampling bootstrap is roughly
-2$\times$ slower than parametric Monte-Carlo per replicate as
-expected, and that end-to-end pipeline scaling on this aggregated
+conditions, that the case-resampling bootstrap is several-fold
+slower than parametric Monte-Carlo per replicate (roughly
+2.5$\times$ for \texttt{sfs-mode at} and 4$\times$ for
+\texttt{sfs-mode above} on the lab benchmark), and that
+end-to-end pipeline scaling on this aggregated
 workload extends usefully to higher worker counts than the
 per-gene benchmark of Figure~S1, with a sweet spot near 32
 workers. The benchmark is fully reproducible via
