@@ -6,3 +6,9 @@
 *.pdf
 *.toc
 *.synctex.gz
+
+# Revision build artifacts
+review-responses-pagenum.txt
+review-diff.tex
+review-diff.tex.tmp
+revision-for-diff.tex

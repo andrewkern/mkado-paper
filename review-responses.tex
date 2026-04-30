@@ -1,0 +1,405 @@
+% Cover letter and point-by-point reviewer responses.
+% Reviewer text is verbatim from paper_review.txt; \reply{...} blocks
+% are scaffolded as TODO placeholders to be filled in during the revision.
+
+\begin{minipage}[b]{2.5in}
+  Resubmission Cover Letter \\
+  {\it Bioinformatics}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{5.5in}
+  Andrew Kern (on behalf of all authors) \\
+  \today
+\end{minipage}
+
+\vskip 2em
+
+\noindent
+{\bf To the Editor(s) -- }
+
+\vskip 1em
+
+We are writing to submit a revised version of our manuscript titled
+``MKado: a toolkit for McDonald-Kreitman tests of natural selection''.
+We thank the editor and both reviewers for their thoughtful and
+constructive comments, which have substantially strengthened the
+manuscript and the underlying software package. The most substantive
+changes in this revision are: (i) a new aggregated-genes asymptotic-MK
+runtime benchmark addressing Reviewer~1, point~5; (ii) implementation of
+the Uricchio et al.~(2019) ``above-$x$'' cumulative SFS for the
+asymptotic test, addressing Reviewer~1, point~4; (iii) a polyDFE-style
+case-resampling bootstrap CI for asymptotic alpha, addressing the second
+half of Reviewer~1, point~5; and (iv) prominent VCF-input and
+allele-polarization documentation in both manuscript and docs,
+addressing Reviewer~1, points~1--2 and Reviewer~2.
+
+In addition to a Response to Reviewers (in which page/line numbers refer
+to the revised manuscript file), we provide a marked-up PDF showing the
+differences relative to the original submission.
+
+\vskip 2em
+
+\noindent\hspace{4em}
+\begin{minipage}{4.5in}
+\noindent
+{\bf Sincerely,}
+
+\vskip 2em
+
+{\bf
+  Andrew Kern (on behalf of all authors)
+}\\
+\end{minipage}
+
+\vskip 4em
+
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\reviewersection{1}
+
+\begin{itquote}
+McDonald and Kreitman (MK) test is one of the most widely used methods
+to test for natural selection. Since its original publication, several
+studies have proven its potential for detecting positive selection.
+Nowadays, we have several extensions that mitigate the main issue of
+the MK test: the presence of slightly deleterious mutations. Here, the
+authors present a fast, user-friendly, and well-documented software to
+automatize MK tests. The software not only includes multiple MK tests
+extensions per gene or aggregated datasets, but also data processing,
+multiple testing correction, and visualization features. However, I
+have a few minor concerns that I hope the authors can address. Most of
+them should be straightforward to test or implement.
+\end{itquote}
+
+\reply{We thank the reviewer for the positive assessment and for the
+detailed, constructive comments. Each point is addressed in turn below;
+the substantive items (especially points~4 and~5) drove the
+two largest additions in this revision (cumulative-SFS option and a
+new aggregated-genes runtime benchmark with bootstrap CIs).}
+
+%---------- R1.1 ----------
+\begin{point}{} % 1.1 -- VCF support visible in docs but not in manuscript
+As the authors claim, most of the current software is fragmented. Some
+tools can deal with VCF or multi-FASTA data (\texttt{degennotate},
+\texttt{fastDFE}, \texttt{iMKT}; \url{https://doi.org/10.1093/molbev/msad270},
+\url{https://doi.org/10.1093/molbev/msae070},
+\url{https://doi.org/10.1093/nar/gkz372}), some have already implemented
+several of the MK tests presented here (\texttt{MKtest.jl};
+\url{https://doi.org/10.1093/g3journal/jkae031}), others can polarise
+alleles (\texttt{fastDFE}; \url{https://doi.org/10.1093/molbev/msae070}).
+\mkado unifies it on a user-friendly Python package. The documentation
+shows that \mkado can deal with VCF files similarly to \texttt{fastDFE},
+but I cannot see this mentioned in the paper. The authors should
+include it in the main text, since handling both VCF and multi-FASTA
+files is an important feature.
+\end{point}
+
+\reply{TODO: describe added VCF paragraph in Features section, new row
+in the comparison table, and citations to the named alternatives.}
+
+%---------- R1.2 ----------
+\begin{point}{} % 1.2 -- automatic allele polarization vs polarized MK
+In addition to describing the Polarised MK Test, the authors should
+state in the main text that \mkado uses outgroup sequences to polarize
+alleles. As far as I understand, this is done automatically and is
+well described in the software documentation. Nonetheless, I would
+recommend that the authors clarify the automatic allele polarization
+required to run tests such as the asymptotic or imputed MK tests
+(where polarization is mandatory or recommended), as distinct from the
+polarised MK test, which specifically tests for selection along a
+lineage. As I said, this is already well explained in the
+documentation, so it should be straightforward to include in the paper
+to avoid any misunderstanding.
+\end{point}
+
+\reply{TODO: describe new ``Allele polarization'' subsection in Methods.}
+
+%---------- R1.3 ----------
+\begin{point}{} % 1.3 -- TG alpha + imputed / FWW combination
+When using the Tarone-Greenland Alpha, is the standard MK test
+applied? Would it not be beneficial to correct for slightly deleterious
+mutations by simply using the imputed or Fay, Wyckoff and Wu frequency
+threshold correction?
+\end{point}
+
+\reply{TODO: explain that \texttt{--alpha-tg --min-freq X} already
+applies the FWW frequency-threshold correction within
+$\alpha_\text{TG}$; decline the imputed $\times$ TG combination as an
+unvalidated novel estimator.}
+
+%---------- R1.4 ----------
+\begin{point}{} % 1.4 -- Uricchio et al. 2019 above-x SFS option
+The authors should include an option to modify the SFS as described in
+Uricchio et al.\ (2019) (see supplementary material,
+\url{https://doi.org/10.1038/s41559-019-0890-6}):
+
+\begin{itquote}
+We note that the original asymptotic-MK approach takes $P_N(x)$ and
+$P_S(x)$ as the number of polymorphic sites at frequency $x$ rather
+than above $x$, but this approach scales poorly as sample size
+increases since most common allele frequencies $x$ have very few
+polymorphic sites in large samples. We therefore define $P_N(x)$ and
+$P_S(x)$ as stated above since these quantities trivially have the
+same asymptote but are less affected by changing sample size.
+\end{itquote}
+
+The asymptotic estimation would greatly benefit from this modification,
+producing more robust results. The authors can follow
+\url{https://github.com/jmurga/MKtest.jl/blob/main/src/polymorphism.jl}
+to implement it.
+\end{point}
+
+\reply{TODO: describe new \texttt{--sfs-mode}\,\{\texttt{at},\texttt{above}\}
+flag, default \texttt{at} (Messer \& Petrov 2013) for backward
+compatibility, with the cumulative inclusive-tail variant available
+under \texttt{above}; cite Uricchio 2019.}
+
+%---------- R1.5 ----------
+\begin{point}{} % 1.5 -- runtime benchmarks: composition + aggregated
+Do the runtime plots show only the batch processing of the 12,437
+human genes, or also the execution of the imputed or standard MK test?
+If the tests are not included on runtime, I would recommend that the
+authors incorporate both processing and MK test estimation, since this
+should not substantially affect the benchmark. Moreover, I'm assuming
+the author are not providing runtime benchmark for asymptotic
+estimations. Because asymptotic estimation would probably fail at the
+gene level or provide unreliable results (as the authors properly
+note), I will recommend two approaches:
+
+\begin{itemize}
+\item[(i)] Following Murga-Moreno et al.\ (2022)
+(\url{https://doi.org/10.1093/g3journal/jkac206}), the authors can
+aggregate at least 1{,}000 random genes to ensure reliable estimation
+on human data and run the benchmark over a reasonable number of
+replicates.
+\item[(ii)] They can add the polyDFE bootstrapping strategy to resample
+the SFS over the 12{,}437 aggregated genes. This is a common strategy
+for obtaining reliable alpha confidence interval (CI) estimates (e.g.,
+Castellano et al.\ 2019;
+\url{https://doi.org/10.1534/genetics.119.302494}). The authors
+currently estimate CI via Monte Carlo, but adding a bootstrap
+resampling strategy would benefit both runtime benchmarks and the
+reliability of alpha estimates for any MK test provided. See the
+\texttt{bootstrapData} function at
+\url{https://github.com/paula-tataru/polyDFE/blob/master/postprocessing.R}
+or
+\url{https://fastdfe.readthedocs.io/en/latest/_modules/fastdfe/spectrum.html#Spectrum.resample}.
+\end{itemize}
+
+This way, non-expert users would not face runtimes longer than those
+shown in Figure S1. Since the software scaling is nearly perfect,
+testing approximately 1{,}000 aggregated datasets should be
+informative enough.
+\end{point}
+
+\reply{TODO: describe (a) clarified composition of existing benchmarks
+(parsing $+$ site counting $+$ test $+$ output), (b) new
+aggregated-asymptotic benchmark and supplementary figure built on
+the 1{,}000-gene-per-replicate regime
+(\texttt{examples/benchmarks/aggregated\_asymptotic\_runtime.py}), and
+(c) new \texttt{--ci-method bootstrap} option for asymptotic alpha,
+implementing case-resampling refit per replicate.}
+
+%---------- R1.6 ----------
+\begin{point}{} % 1.6 -- Ls, Ln; omega_a, omega_na decomposition
+Since the authors already manually estimate the shortest mutational
+paths and weight synonymous and nonsynonymous sites following Nei and
+Gojobori (1986), can they include the total number of synonymous and
+nonsynonymous sites ($L_s$, $L_n$)? It should then be straightforward
+to also implement $\omega_a$ and $\omega_{na}$, as decomposed in
+Coronado-Zamora et al.\ (2019)
+(\url{https://academic.oup.com/gbe/article/11/5/1463/5480667}):
+\[
+\omega_a = \alpha \cdot \omega, \qquad
+\omega_{na} = (1 - \alpha) \cdot \omega.
+\]
+\end{point}
+
+\reply{TODO: describe new \texttt{omega} command computing $L_n$, $L_s$,
+$\omega = (D_n / L_n) / (D_s / L_s)$ and the
+$\omega_a$ / $\omega_{na}$ decomposition with confidence intervals.}
+
+%---------- R1.7 ----------
+\begin{point}{} % 1.7 -- OrthoMaM polymorphism projection writeup
+The authors followed an intelligent strategy using the OrthoMaM
+database to obtain human $D_n$, $D_s$, $P_n$, and $P_s$ counts. I
+think projecting the polymorphic data onto the ortholog alignments
+could provide an useful feature when working with non-model species
+available within OrthoMaM database. I understand that including such
+a feature will be challenging, but a more detailed explanation of the
+polymorphism projection procedure would help users working with
+non-model organisms.
+\end{point}
+
+\reply{TODO: point at new ``Working with ortholog alignments'' section
+in the documentation tutorial and a methods paragraph that summarizes
+the OrthoMaM coordinate-mapping pipeline (alignment source, VCF
+liftover, indel handling, multi-transcript reconciliation). Note that
+the standalone \texttt{mkado project} subcommand is deferred to a
+future release per the reviewer's allowance.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\reviewersection{2}
+
+\begin{itquote}
+This is a concise manuscript reporting a standalone package
+specifically designed for computing several flavours of the classical
+McDonald-Kreitman test. The length of the manuscript, level of details
+and information provided are appropriate. I agree with the authors
+that such as tool can be a benefit for the community by filling a gap
+in the set of available programs. I would say that \mkado fulfils its
+tasks successfully. I had the chance to test the package and I found
+it satisfying so my review will be positive. Nevertheless I will seize
+this opportunity to provide feedback after looking at the code and
+testing the tool.
+\end{itquote}
+
+\reply{We thank the reviewer for the positive overall assessment and
+for testing the package end-to-end. The detailed, code-level feedback
+was particularly valuable; each point is addressed below.}
+
+%---------- R2.1 ----------
+\begin{point}{} % 2.1 -- formal definition of Pn and Ps
+[The text has a good structure.] However, I would recommend that both
+the article and the documentation describe formally the basic
+statistics used. There are detailed formulas for variants of the MK
+tests, $D_n$ and $D_s$ are clearly defined, but $P_n$ and $P_s$ are
+not, actually (or not completely).
+\end{point}
+
+\reply{TODO: describe new explicit definitions of $P_n$ and $P_s$ in
+the manuscript Methods (with handling of singletons, the
+\texttt{--pool-polymorphisms} option, and the derived-allele-frequency
+threshold) and the matching tightening of dataclass docstrings in the
+package.}
+
+%---------- R2.2 ----------
+\begin{point}{} % 2.2 -- VCF support not mentioned in manuscript
+I am surprised that the possibility of importing VCF data is not
+mentioned in the manuscript. I suppose that this was a recent addition
+to the package. This would be an attractive addition to the article.
+\end{point}
+
+\reply{TODO: cross-reference response to Reviewer~1, point~1 (added
+VCF paragraph and comparison-table row).}
+
+%---------- R2.3 ----------
+\begin{point}{} % 2.3 -- Figure 1 caption: two-panel
+Figure 1 should be cited slightly differently as it shows both the
+volcano plot and the asymptotic MK test display.
+\end{point}
+
+\reply{TODO: describe the caption rewrite (left/right panel
+description) and the in-text references that no longer mistakenly
+refer to a single panel.}
+
+%---------- R2.4 ----------
+\begin{point}{} % 2.4 -- __init__.py outdated (version, package name)
+The main \texttt{\_\_init\_\_.py} file is outdated as of this writing.
+First, the hardcoded version number is still 0.3.0 while the package
+has been ported to 0.4.0. Second, the package name in the file
+docstring is still ``mikado'', which is the original name of the
+project.
+\end{point}
+
+\reply{TODO: confirm the version-string and docstring fix in
+\texttt{src/mkado/\_\_init\_\_.py} (single-source-of-truth via
+\texttt{importlib.metadata.version}).}
+
+%---------- R2.5 ----------
+\begin{point}{} % 2.5 -- shell completion options unclear; slow
+I noticed that the umbrella command has options to manage shell
+completion. They were not clear to me at first sight and it is rather
+unexpected to find them as the option of the umbrella command, which
+is not expected to do anything. Maybe a ``setup'' command would
+clarify it but this is not essential. In any case I recommend adding a
+sentence to the help page to explain that these options allow to
+configure automatic shell completion. On my system, shell completion
+was painfully slow so the feature was doing more harm than good.
+\end{point}
+
+\reply{TODO: describe the help-text addition for
+\texttt{--install-completion} / \texttt{--show-completion} on the
+umbrella command, plus a new ``Shell completion'' subsection in the
+docs noting that completion may be slow on some shells and can simply
+be left uninstalled.}
+
+%---------- R2.6 ----------
+\begin{point}{} % 2.6 -- subcommand-without-args behaviour
+When called without argument, the different commands end up with an
+error, which is somewhat inconsistent with the behaviour of the
+umbrella command (which displays the help page). But it is a perfectly
+acceptable behaviour and up to the authors. Commands have logical and
+relevant options.
+\end{point}
+
+\reply{TODO: short response noting the reviewer's allowance to keep
+the existing behaviour, or describe a small CLI tweak that prints help
+when a required positional is missing.}
+
+%---------- R2.7 ----------
+\begin{point}{} % 2.7 -- output filename specification
+The commands write a progress bar and some feedback to the standard
+error stream, obviously to enable standard output redirection to
+capture the output. Unless I missed it, there is no way to specify
+[an] output file name. The choice that has been made is not perfectly
+complying with conventions regarding the use of the standard error
+stream but it is not unusual either.
+\end{point}
+
+\reply{TODO: describe the new \texttt{--output} / \texttt{-o} flag (or
+explicitly note that stdout redirection plus the existing
+\texttt{--format} flag already covers this case, if we decide not to
+add a new flag).}
+
+%---------- R2.8 ----------
+\begin{point}{} % 2.8 -- ruff out of user manual; "third outgroup"
+The package is adequately documented by a fairly complete README
+available on the git and PyPI repositories, and, more in more details
+by a readthedocs page. [A] small remark would be that I don't think
+it is relevant to explain how to use ruff in the manual, as this is
+not needed to use \mkado. By contrast, the shell completion options
+could be mentioned. There is somewhere the term ``third outgroup''
+which I think is incorrect. Apart for this, the documentation is
+clear and complete, with very helpful commands.
+\end{point}
+
+\reply{TODO: confirm ruff usage moved out of the user-facing
+installation page (now in CONTRIBUTING.md), shell completion documented
+(see R2.5), and ``third outgroup'' corrected to ``second outgroup'' in
+\texttt{docs/index.rst}.}
+
+%---------- R2.9 ----------
+\begin{point}{} % 2.9 -- aggregate option meaning + range/regex matchers
+Only the meaning of the ``aggregate'' option was not clear to me. As
+samples are often grouped by population, it could be a possibility to
+allow specifying the ingroup and outgroup by range indexes, in top of
+the two possibilities already provided. This might be a feature
+request. Another suggestion is to support regular expressions to
+identify ingroup and outgroup samples in addition to an exact
+substring match.
+\end{point}
+
+\reply{TODO: (a) describe the new tutorial subsection that explicitly
+contrasts \texttt{--aggregate} and \texttt{--per-gene}; (b) describe
+the new index-range matchers; (c) decline regex matchers with the
+substring-vs-regex trade-off rationale.}
+
+%---------- R2.10 ----------
+\begin{point}{} % 2.10 -- Figure S1 linear scaling claim
+For large datasets it is still needed to use parallelization. However,
+Python isn't (currently) really good at parallelization. My feeling is
+that processing one alignment doesn't involve a lot of computation
+compared with the cost of spawning a worker (which entails creating a
+whole Python process) so the number of workers should be orders of
+magnitude below the number of genes (to avoid a waste of resources for
+little benefit). Figure S1 actually shows that the relationship is all
+but linear so I am not sure to agree with the sentence claiming that
+speedup is linear until 32 workers.
+\end{point}
+
+\reply{TODO: describe the rewritten parallelism paragraph (now
+quantitative: ``approximately $N\times$ speedup at 16 workers, with
+diminishing returns past 32 due to per-process spawn overhead'') and
+the corresponding rewrite of the Figure S1 caption.}

@@ -1,0 +1,94 @@
+% Revision build: line-numbered single-column manuscript with the
+% reviewer responses appended. The Makefile splits the resulting PDF
+% into the revised manuscript (line-numbered) and the response
+% document (no line numbers, page numbers reset to 1) using the page
+% number written to review-responses-pagenum.txt by the response block
+% at the end of this file.
+%
+% The original bioinfo.cls build (main.tex) is untouched and remains
+% the canonical typeset version for final submission.
+
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[round]{natbib}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{lineno}
+
+\input{paper/header}
+
+% Review response macros and \revpoint / \revref / \llabel commands.
+\input{review-response-commands}
+
+\pagestyle{fancy}
+\setlength{\headheight}{14.5pt}
+\fancyhead[L]{}
+\fancyhead[R]{\textbf{MKado: McDonald-Kreitman test toolkit}}
+
+% Stub out bioinfo.cls commands so paper/abstract.tex etc compile under
+% article class.
+\newcommand{\subtitle}[1]{\begin{center}\large #1\end{center}}
+\newcommand{\corresp}[1]{}
+\newcommand{\history}[1]{}
+\newcommand{\editor}[1]{}
+\newcommand{\firstpage}[1]{}
+\renewcommand{\abstract}[1]{%
+  \begin{center}\textbf{Abstract}\end{center}
+  \begin{quote}\small #1\end{quote}
+  \medskip}
+
+\begin{document}
+
+\linenumbers
+
+\title{MKado: a toolkit for McDonald-Kreitman tests of natural selection}
+\author{Angel G.\ Rivera-Col\'{o}n\textsuperscript{1},
+  Clara T.\ Rehmann\textsuperscript{1},
+  and Andrew D.\ Kern\textsuperscript{1,*}\\[4pt]
+  \small\textsuperscript{1}Institute of Ecology and Evolution and Department of Biology,
+  University of Oregon, Eugene, OR 97403, USA\\
+  \small\textsuperscript{*}Correspondence: \href{mailto:adkern@uoregon.edu}{adkern@uoregon.edu}}
+\date{}
+
+\maketitle
+
+\input{paper/abstract}
+
+\input{paper/introduction}
+\input{paper/methods}
+\input{paper/results}
+
+\input{paper/acknowledgements}
+\input{paper/funding}
+
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
+
+\pagebreak
+\input{paper/supplemental}
+
+% === Review Responses (extracted to a separate PDF by the Makefile) ===
+\clearpage
+% Record the absolute page number where responses begin, for PDF splitting.
+\newwrite\pageinfo
+\immediate\openout\pageinfo=review-responses-pagenum.txt
+\immediate\write\pageinfo{\thepage}
+\immediate\closeout\pageinfo
+\setcounter{page}{1}
+\label{review-responses-start}
+\nolinenumbers
+\pagestyle{plain}
+
+\begin{center}
+{\LARGE \textbf{Response to Reviewers}}\\[1em]
+{\large MKado: a toolkit for McDonald-Kreitman tests of natural selection}
+\end{center}
+
+\vskip 2em
+
+\input{review-responses}
+
+\end{document}
